@@ -45,14 +45,12 @@ class RestaurantResource extends Resource
                                         ->placeholder('User Name')
                                         ->required()
                                         ->maxLength(255)
-                                        ->dehydrated(false)
                                         ->default(fn ($record) => $record?->user?->name),
                                     TextInput::make('user_email')
                                         ->label('Email')
                                         ->email()
                                         ->required()
                                         ->maxLength(255)
-                                        ->dehydrated(false)
                                         ->default(fn ($record) => $record?->user?->email)
                                         ->unique('users', 'email', fn ($record) => $record?->user?->id ?? null),
                                 ]),
