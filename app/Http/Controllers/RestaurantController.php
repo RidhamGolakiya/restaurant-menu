@@ -40,7 +40,55 @@ class RestaurantController extends Controller
             return view('restaurant.themes.modern', compact('restaurant', 'date', 'restaurantHours', 'otherRestaurants', 'menuCategories', 'menus', 'settings', 'currency'));
         }
 
+        if ($restaurant->theme === 'theme_3') {
+            $categories = $menuCategories; // Reusing variable
+            return view('restaurant.themes.theme_3.index', compact('restaurant', 'categories', 'settings', 'currency'));
+        }
+
         return view('restaurant.home', compact('restaurant', 'date', 'restaurantHours', 'otherRestaurants', 'menuCategories', 'menus', 'settings', 'currency'));
+    }
+
+    public function category($slug, $categorySlug)
+    {
+        $restaurant = Restaurant::where('slug', $slug)->firstOrFail();
+        $category = \App\Models\MenuCategory::where('restaurant_id', $restaurant->id)->where('slug', $categorySlug)->firstOrFail();
+        $products = \App\Models\Menu::where('category_id', $category->id)->get();
+        // Theme check
+        if ($restaurant->theme === 'theme_3') {
+             return view('restaurant.themes.theme_3.category', compact('restaurant', 'category', 'products'));
+        }
+        abort(404); // Or default view
+    }
+
+    public function product($slug, $productSlug)
+    {
+        $restaurant = Restaurant::where('slug', $slug)->firstOrFail();
+        $product = \App\Models\Menu::where('restaurant_id', $restaurant->id)->where('slug', $productSlug)->with('category')->firstOrFail();
+        
+         if ($restaurant->theme === 'theme_3') {
+             return view('restaurant.themes.theme_3.product', compact('restaurant', 'product'));
+        }
+        abort(404);
+    }
+
+    public function bestSellerFood($slug)
+    {
+        $restaurant = Restaurant::where('slug', $slug)->firstOrFail();
+        $products = \App\Models\Menu::where('restaurant_id', $restaurant->id)->where('is_best_food', true)->with('category')->get();
+        if ($restaurant->theme === 'theme_3') {
+             return view('restaurant.themes.theme_3.best_seller', compact('restaurant', 'products') + ['title' => 'Best Seller Food']);
+        }
+        abort(404);
+    }
+
+    public function bestSellerDrink($slug)
+    {
+        $restaurant = Restaurant::where('slug', $slug)->firstOrFail();
+        $products = \App\Models\Menu::where('restaurant_id', $restaurant->id)->where('is_best_drink', true)->with('category')->get();
+        if ($restaurant->theme === 'theme_3') {
+             return view('restaurant.themes.theme_3.best_seller', compact('restaurant', 'products') + ['title' => 'Best Seller Drinks']);
+        }
+        abort(404);
     }
 
     public function getTimeSlots($slug)

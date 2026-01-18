@@ -17,7 +17,9 @@ class QrCodeResource extends Resource
 {
     protected static ?string $model = QrCode::class;
 
-    public static function getRecordRouteKeyName(): ?string
+    protected static ?string $pluralModelLabel = 'QR Code';
+
+    public static function getRecordRouteKeyName(): string
     {
         return 'uuid';
     }

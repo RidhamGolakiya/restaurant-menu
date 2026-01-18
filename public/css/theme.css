@@ -1,0 +1,283 @@
+/* Global Theme Variables */
+:root {
+    /* Theme Tokens - Light Mode */
+    --background: #F8FAFC;
+    --foreground: #0A0A0A;
+
+    --text-primary: #0A0A0A;
+    --text-secondary: #334155;
+    --primary-gold: #D4AF37;
+    
+    --hover-border-color: rgba(0, 0, 0, 0.15);
+    
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --border-color: rgba(0, 0, 0, 0.05);
+
+    /* Fonts */
+    --font-sans: 'Inter', sans-serif;
+    --font-serif: 'Playfair Display', serif;
+}
+
+.dark {
+    /* Theme Tokens - Dark Mode */
+    --background: #0F172A;
+    --foreground: #FFFFFF;
+
+    --text-primary: #FFFFFF;
+    --text-secondary: #D1D5DB;
+    
+    --hover-border-color: rgba(255, 255, 255, 0.6);
+    
+    --card-bg: rgba(30, 41, 59, 0.6);
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.container {
+    max-width: 1280px; /* max-w-7xl */
+    margin: 0 auto;
+    padding: 0 1.5rem; /* px-6 */
+}
+
+/* Header */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s;
+}
+
+.dark header {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-content {
+    height: 5rem; /* h-20 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand-logo {
+    font-size: 1.5rem; /* text-2xl */
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: 0.025em; /* tracking-wide */
+}
+
+.brand-highlight {
+    color: var(--primary-gold);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+}
+
+.icon-btn {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: background-color 0.3s;
+}
+
+.icon-btn:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+.dark .icon-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.icon-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Dropdown */
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 1rem;
+    width: 14rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    transform-origin: top right;
+    display: none;
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+    transition: all 0.2s ease;
+}
+
+.dropdown-menu.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+.dark .dropdown-item:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+/* Main Layout */
+main {
+    padding-top: 6rem; /* pt-24 */
+    min-height: 80vh;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    opacity: 0; /* For GSAP entrance */
+}
+
+/* Footer */
+footer {
+    background-color: rgba(255,255,255,0.05);
+    backdrop-filter: blur(4px);
+    border-top: 1px solid rgba(0,0,0,0.05);
+    margin-top: 5rem;
+    padding: 3rem 0;
+}
+.dark footer {
+    background-color: rgba(0,0,0,0.2);
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .footer-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.footer-heading {
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.footer-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.footer-bottom {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+@media (min-width: 768px) {
+    .footer-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+.dark .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Cards Common */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+@media (min-width: 640px) { .card-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .card-grid { grid-template-columns: repeat(5, 1fr); } }
+
+/* GSAP Reveal Animation */
+.gs-reveal {
+    opacity: 0;
+}
+
+/* Section Title */
+.section-title {
+    font-size: 1.5rem;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+/* Buttons */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+.back-btn:hover {
+    color: var(--text-primary);
+}
+.back-btn span {
+    margin-left: 0.5rem;
+}
+
+/* Utilities */
+.hidden { display: none; }

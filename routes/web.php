@@ -26,3 +26,7 @@ Route::get('r/{slug}', [RestaurantController::class, 'index'])->name('restaurant
 Route::post('r/{slug}/reservation', [RestaurantController::class, 'reservation'])->name('reservation.store')->where('slug', '[a-zA-Z0-9\-]+');
 Route::get('r/{slug}/slots', [RestaurantController::class, 'getTimeSlots'])->name('restaurant.slots')->where('slug', '[a-zA-Z0-9\-]+');
 Route::get('r/{slug}/check-availability', [RestaurantController::class, 'checkAvailability']);
+Route::get('r/{slug}/c/{categorySlug}', [RestaurantController::class, 'category'])->name('restaurant.category');
+Route::get('r/{slug}/p/{productSlug}', [RestaurantController::class, 'product'])->name('restaurant.product');
+Route::get('r/{slug}/best-seller-food', [RestaurantController::class, 'bestSellerFood'])->name('restaurant.best-seller.food');
+Route::get('r/{slug}/best-seller-drink', [RestaurantController::class, 'bestSellerDrink'])->name('restaurant.best-seller.drink');

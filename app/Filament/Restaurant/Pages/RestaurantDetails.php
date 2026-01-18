@@ -33,48 +33,50 @@ class RestaurantDetails extends Page implements HasForms
 
     public ?array $data1 = [];
 
-    public ?array $data2 = [];
-
-    public array $timingData = [];
-
-
     public function getTitle(): string
     {
-        return '';
+        return 'Restaurant Details';
     }
 
     public function mount(): void
     {
-        // Load restaurant details
-        $this->data1 = auth()->user()->load('restaurant')->restaurant->toArray();
+        // Load restaurant details with timing slots
+        $restaurant = auth()->user()->load(['restaurant.timingSlots'])->restaurant;
+        $this->data1 = $restaurant->toArray();
 
-        $this->form1->fill($this->data1);
-
-        $this->timingData;
-
-        $this->loadTimingData();
-    }
-
-    protected function loadTimingData(): void
-    {
-        $restaurantId = auth()->user()->restaurant_id;
-        $days = RestaurantDay::where('restaurant_id', $restaurantId)->get();
-
-        $timingData = [];
+        // Convert snake_case relationship key to camelCase for Repeater
+        $existingSlots = $this->data1['timing_slots'] ?? [];
+        
+        // Ensure all 7 days are present
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $completeSlots = [];
 
         foreach ($days as $day) {
-            $slots = $day->timingSlots;
+            // Find existing slot for this day
+            $found = null;
+            foreach ($existingSlots as $slot) {
+                if ($slot['day_name'] === $day) {
+                    $found = $slot;
+                    break;
+                }
+            }
 
-            $timingData[$day->day_name] = [
-                'is_active' => $day->is_active,
-                'slots' => $slots->map(fn($slot) => [
-                    'open_time' => $slot->open_time,
-                    'close_time' => $slot->close_time,
-                ])->toArray(),
-            ];
+            if ($found) {
+                $completeSlots[] = $found;
+            } else {
+                // Add empty slot for missing day
+                $completeSlots[] = [
+                    'day_name' => $day,
+                    'open_time' => null,
+                    'close_time' => null,
+                ];
+            }
         }
 
-        $this->timingData = $timingData;
+        $this->data1['timingSlots'] = $completeSlots;
+        unset($this->data1['timing_slots']);
+
+        $this->form1->fill($this->data1);
     }
 
     protected function getForms(): array
@@ -86,193 +88,216 @@ class RestaurantDetails extends Page implements HasForms
 
     public function form1(Form $form1): Form
     {
-        $photos = auth()->user()->restaurant->getMedia(Restaurant::PHOTOS);
-
         return $form1
-            ->model(auth()->user())
+            ->model(auth()->user()->restaurant)
             ->schema([
-                Group::make([
-                    TextInput::make('name')
-                        ->label('Restaurant Name')
-                        ->placeholder('Restaurant Name')
-                        ->required()
-                        ->maxLength(255)
-                        ->live()
-                        ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
-                    TextInput::make('slug')
-                        ->label('URL:')
-                        ->placeholder('Slug')
-                        ->regex('/^[a-zA-Z0-9-]+$/')
-                        ->rule('unique:restaurants,slug,' . auth()->user()->restaurant_id)
-                        ->required(),
-                    PhoneInput::make('phone')
-                        ->label('Phone Number:')
-                        ->placeholder('Phone Number')
-                        ->required(),
-                    // Select::make('timezone')
-                    //     ->label('Time Zone:')
-                    //     ->options(getTimeZone())
-                    //     ->searchable()
-                    //     ->preload()
-                    //     ->required()
-                    //     ->native(false),
-                ])->columns(4),
-                Group::make([
-                    Textarea::make('overview')
-                        ->label('Overview:')
-                        ->rows(3)
-                        ->placeholder('Overview')
-                        ->maxLength(600),
+                \Filament\Forms\Components\Tabs::make('RestaurantTabs')
+                    ->tabs([
+                        \Filament\Forms\Components\Tabs\Tab::make('General Details')
+                            ->icon('heroicon-o-information-circle')
+                            ->schema([
+                                Group::make([
+                                    TextInput::make('name')
+                                        ->label('Restaurant Name')
+                                        ->placeholder('Restaurant Name')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->live(debounce: 500)
+                                        ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                    TextInput::make('slug')
+                                        ->label('URL Slug')
+                                        ->placeholder('Slug')
+                                        ->regex('/^[a-zA-Z0-9-]+$/')
+                                        ->unique('restaurants', 'slug', ignoreRecord: true)
+                                        ->required(),
+                                    PhoneInput::make('phone')
+                                        ->label('Phone Number')
+                                        ->placeholder('Phone Number')
+                                        ->required(),
+                                    TextInput::make('restaurant_website_link')
+                                        ->label('Website')
+                                        ->placeholder('https://...')
+                                        ->url(),
+                                ])->columns(2),
+                                
+                                Textarea::make('overview')
+                                    ->label('Overview')
+                                    ->rows(3)
+                                    ->placeholder('Short description of your restaurant')
+                                    ->maxLength(600)
+                                    ->columnSpanFull(),
 
-                ])->columns(1),
-                Group::make([
-                    TextInput::make('google_map_link')
-                        ->label('Google Map Link:')
-                        ->placeholder('Google Map Link')
-                        ->url(),
-                        // ->rule('regex:/^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps|goo\.gl\/maps)\/.+$/i'),
-                    TextInput::make('restaurant_website_link')
-                        ->label('Restaurant Website:')
-                        ->placeholder('Restaurant Website Link')
-                        ->url(),
-                ])->columns(2),
-                Group::make([
-                    Textarea::make('address')
-                        ->label('Address 1:')
-                        ->rows(3)
-                        ->placeholder('Address')
-                        ->required()
-                        ->maxLength(255),
-                    Textarea::make('address_2')
-                        ->label('Address 2:')
-                        ->placeholder('Address 2')
-                        ->nullable()
-                        ->rows(3)
-                        ->maxLength(255),
-                ])->columns(2),
-                Group::make([
-                    TextInput::make('zip_code')
-                        ->label('Zip Code:')
-                        ->placeholder('Zip Code')
-                        ->required()
-                        ->numeric()
-                        ->maxLength(20),
-                    Select::make('country_id')
-                        ->label('Country:')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->optionsLimit(Country::count())
-                        ->native(false)
-                        ->options(Country::pluck('name', 'id')->toArray()),
-                    TextInput::make('state')
-                        ->label('State:')
-                        ->placeholder('State')
-                        ->required()
-                        ->maxLength(255),
-                    TextInput::make('city')
-                        ->label('City:')
-                        ->placeholder('City')
-                        ->required()
-                        ->maxLength(255),
-                ])->columns(4),
+                                \Filament\Forms\Components\Section::make('Social Media')
+                                    ->schema([
+                                        Group::make()->schema([
+                                            TextInput::make('social_links.instagram')->label('Instagram')->prefix('instagram.com/'),
+                                            TextInput::make('social_links.facebook')->label('Facebook')->prefix('facebook.com/'),
+                                            TextInput::make('social_links.twitter')->label('X (Twitter)')->prefix('x.com/'),
+                                        ])->columns(3),
+                                    ])->collapsible(),
+                            ]),
 
-                Group::make()->relationship('restaurant')->schema([
-                    SpatieMediaLibraryFileUpload::make('hero-image')
-                        ->label('Hero Image:')
-                        ->image()
-                        ->disk(config('app.media_disk'))
-                        ->collection(Restaurant::HERO_IMAGE)
-                        ->maxSize(2048),
-                    SpatieMediaLibraryFileUpload::make('photos')
-                        ->label('Photos:')
-                        ->image()
-                        ->panelLayout('grid')
-                        ->extraAttributes([
-                            'class' => 'custom-photo-upload-container',
-                        ])
-                        ->disk(config('app.media_disk'))
-                        ->collection(Restaurant::PHOTOS)
-                        ->multiple()
-                        ->maxSize(2048),
-                    SpatieMediaLibraryFileUpload::make('logo')
-                        ->label('Logo:')
-                        ->image()
-                        ->avatar()
-                        ->disk(config('app.media_disk'))
-                        ->collection(Restaurant::LOGO)
-                        ->maxSize(2048),
-                ])->columns(2),
-            ])->statePath('data1')->columns(1);
-    }
+                        \Filament\Forms\Components\Tabs\Tab::make('Location')
+                            ->icon('heroicon-o-map-pin')
+                            ->schema([
+                                Group::make([
+                                    TextInput::make('address')
+                                        ->label('Address Line 1')
+                                        ->required()
+                                        ->maxLength(255),
+                                    TextInput::make('address_2')
+                                        ->label('Address Line 2')
+                                        ->nullable()
+                                        ->maxLength(255),
+                                    TextInput::make('city')
+                                        ->label('City')
+                                        ->required()
+                                        ->maxLength(255),
+                                    TextInput::make('state')
+                                        ->label('State')
+                                        ->required()
+                                        ->maxLength(255),
+                                    TextInput::make('zip_code')
+                                        ->label('Zip Code')
+                                        ->required()
+                                        ->maxLength(20),
+                                    Select::make('country_id')
+                                        ->label('Country')
+                                        ->searchable()
+                                        ->preload()
+                                        ->required()
+                                        ->options(Country::pluck('name', 'id')),
+                                    TextInput::make('google_map_link')
+                                        ->label('Google Map Link')
+                                        ->url()
+                                        ->columnSpanFull(),
+                                ])->columns(2),
+                            ]),
 
-    public function getFormActions(): array
-    {
-        return [
-            Action::make('saveAll')
-                ->extraAttributes(['id' => 'full-save'])
-                ->label('Update Details')
-                ->submit('saveAll'),
-        ];
-    }
+                        \Filament\Forms\Components\Tabs\Tab::make('Media')
+                            ->icon('heroicon-o-photo')
+                            ->schema([
+                                SpatieMediaLibraryFileUpload::make('logo')
+                                    ->label('Logo')
+                                    ->image()
+                                    ->avatar()
+                                    ->disk(config('app.media_disk'))
+                                    ->collection(Restaurant::LOGO)
+                                    ->maxSize(2048),
+                                SpatieMediaLibraryFileUpload::make('hero-image')
+                                    ->label('Hero Image')
+                                    ->image()
+                                    ->disk(config('app.media_disk'))
+                                    ->collection(Restaurant::HERO_IMAGE)
+                                    ->maxSize(2048),
+                                SpatieMediaLibraryFileUpload::make('photos')
+                                    ->label('Gallery Photos')
+                                    ->image()
+                                    ->panelLayout('grid')
+                                    ->disk(config('app.media_disk'))
+                                    ->collection(Restaurant::PHOTOS)
+                                    ->multiple()
+                                    ->maxSize(2048)
+                                    ->columnSpanFull(),
+                            ])->columns(2),
 
-    public function saveAll(array $timings): void
-    {
-        $this->saveFromBrowser($timings);
-        $this->save();
+                        \Filament\Forms\Components\Tabs\Tab::make('Business Hours')
+                            ->icon('heroicon-o-clock')
+                            ->schema([
+
+                                \Filament\Forms\Components\Actions::make([
+                                    \Filament\Forms\Components\Actions\Action::make('copyMonday')
+                                        ->label('Copy Monday to All')
+                                        ->icon('heroicon-m-clipboard-document-check')
+                                        ->action(function (\Filament\Forms\Get $get, \Filament\Forms\Set $set) {
+                                            $state = $get('timingSlots');
+                                            $mondaySlot = null;
+
+                                            // Find Monday
+                                            foreach ($state as $key => $slot) {
+                                                if (($slot['day_name'] ?? '') === 'Monday') {
+                                                    $mondaySlot = $slot;
+                                                    break;
+                                                }
+                                            }
+
+                                            if ($mondaySlot) {
+                                                $open = $mondaySlot['open_time'];
+                                                $close = $mondaySlot['close_time'];
+
+                                                // Apply to all other slots
+                                                foreach ($state as $key => $slot) {
+                                                    $set("timingSlots.{$key}.open_time", $open);
+                                                    $set("timingSlots.{$key}.close_time", $close);
+                                                }
+                                                
+                                                Notification::make()
+                                                    ->title('Copied Monday timings to all days')
+                                                    ->success()
+                                                    ->send();
+                                            }
+                                        }),
+                                ]),
+                                \Filament\Forms\Components\Repeater::make('timingSlots')
+                                    ->label('Opening Hours')
+                                    ->schema([
+                                        TextInput::make('day_name')
+                                            ->hiddenLabel()
+                                            ->required()
+                                            ->readOnly()
+                                            ->columnSpan(1),
+                                        \Filament\Forms\Components\TimePicker::make('open_time')
+                                            ->hiddenLabel()
+                                            ->required()
+                                            ->seconds(false)
+                                            ->columnSpan(1),
+                                        \Filament\Forms\Components\TimePicker::make('close_time')
+                                            ->hiddenLabel()
+                                            ->required()
+                                            ->seconds(false)
+                                            ->columnSpan(1),
+                                    ])
+                                    ->columns(3)
+                                    ->addable(false)
+                                    ->deletable(false)
+                                    ->reorderable(false),
+
+                            ]),
+                    ])->columnSpanFull(),
+            ])
+            ->statePath('data1');
     }
 
     public function save(): void
     {
         if (auth()->user()->email === config('app.demo_email')) {
-            Notification::make()
-                ->danger()
-                ->title('You are not allowed to perform this action.')
-                ->send();
-
+            Notification::make()->danger()->title('Action not allowed in demo.')->send();
             return;
         }
 
         $data = $this->form1->getState();
 
+        // Extract timing slots
+        $timingSlots = $data['timingSlots'] ?? [];
+        unset($data['timingSlots']);
+
         $restaurant = auth()->user()->restaurant;
+        
+        // Update Restaurant Details
         $restaurant->update($data);
+
+        // Update Timing Slots
+        $restaurant->timingSlots()->delete();
+        if (!empty($timingSlots)) {
+            $restaurant->timingSlots()->createMany($timingSlots);
+        }
 
         Notification::make()
             ->success()
             ->title('Restaurant details updated successfully.')
             ->send();
 
+        // Reload to reflect changes
         $this->redirect(route('filament.restaurant.pages.restaurant-details'), navigate: false);
-    }
-
-    public function saveFromBrowser(array $timings)
-    {
-        $restaurantId = auth()->user()->restaurant_id;
-
-        foreach ($timings as $dayName => $data) {
-            $slots = $data['slots'] ?? [];
-
-            $day = RestaurantDay::updateOrCreate(
-                [
-                    'restaurant_id' => $restaurantId,
-                    'day_name' => $dayName,
-                ],
-                [
-                    'is_active' => $data['is_active'] ?? false,
-                ]
-            );
-
-            $day->timingSlots()->delete();
-
-            foreach ($slots as $slot) {
-                $day->timingSlots()->create([
-                    'restaurant_id' => $restaurantId,
-                    'day_name' => $day->day_name,
-                    'open_time' => $slot['open_time'],
-                    'close_time' => $slot['close_time'],
-                ]);
-            }
-        }
     }
 }

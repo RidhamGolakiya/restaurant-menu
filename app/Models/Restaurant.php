@@ -45,6 +45,7 @@ class Restaurant extends Model implements HasMedia
         'currency_id',
         'show_on_landing_page',
         'type',
+        'social_links',
     ];
 
     public function currency()
@@ -55,6 +56,7 @@ class Restaurant extends Model implements HasMedia
     protected $casts = [
         'theme_config' => 'array',
         'show_on_landing_page' => 'boolean',
+        'social_links' => 'array',
     ];
 
     public static array $types = [
@@ -99,6 +101,11 @@ class Restaurant extends Model implements HasMedia
     public function user()
     {
         return $this->hasOne(User::class, 'restaurant_id');
+    }
+
+    public function timingSlots()
+    {
+        return $this->hasMany(RestaurantTimingSlot::class);
     }
 
     public function getPhotosAttribute()
