@@ -20,6 +20,7 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?int $navigationSort = RestaurantPanelMenuSorting::USERS->value;
 

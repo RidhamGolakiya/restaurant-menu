@@ -109,13 +109,13 @@ class RestaurantDetails extends Page implements HasForms
                         ->label('Phone Number:')
                         ->placeholder('Phone Number')
                         ->required(),
-                    Select::make('timezone')
-                        ->label('Time Zone:')
-                        ->options(getTimeZone())
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->native(false),
+                    // Select::make('timezone')
+                    //     ->label('Time Zone:')
+                    //     ->options(getTimeZone())
+                    //     ->searchable()
+                    //     ->preload()
+                    //     ->required()
+                    //     ->native(false),
                 ])->columns(4),
                 Group::make([
                     Textarea::make('overview')
@@ -129,8 +129,8 @@ class RestaurantDetails extends Page implements HasForms
                     TextInput::make('google_map_link')
                         ->label('Google Map Link:')
                         ->placeholder('Google Map Link')
-                        ->url()
-                        ->rule('regex:/^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps|goo\.gl\/maps)\/.+$/i'),
+                        ->url(),
+                        // ->rule('regex:/^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps|goo\.gl\/maps)\/.+$/i'),
                     TextInput::make('restaurant_website_link')
                         ->label('Restaurant Website:')
                         ->placeholder('Restaurant Website Link')

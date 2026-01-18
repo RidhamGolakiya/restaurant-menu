@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -10,6 +11,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Concerns\HasUuid;
 class Restaurant extends Model implements HasMedia
 {
     use HasUuid, InteractsWithMedia;
+
+
+
 
     protected $table = 'restaurants';
 
@@ -33,10 +37,33 @@ class Restaurant extends Model implements HasMedia
         'secondary_color',
         'accent_color',
         'theme_config',
+        'plan_id',
+        'plan_status',
+        'plan_expiry',
+        'is_active',
+        'theme',
+        'currency_id',
+        'show_on_landing_page',
+        'type',
     ];
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
 
     protected $casts = [
         'theme_config' => 'array',
+        'show_on_landing_page' => 'boolean',
+    ];
+
+    public static array $types = [
+        'Cafe' => 'Cafe',
+        'Restaurant' => 'Restaurant',
+        'Hotel' => 'Hotel',
+        'Bar' => 'Bar',
+        'Fast Food' => 'Fast Food',
+        'Other' => 'Other',
     ];
 
     const HERO_IMAGE = 'hero-images';
@@ -57,6 +84,16 @@ class Restaurant extends Model implements HasMedia
     public function country()
     {
         return $this->belongsTo(Country::class, 'country_id');
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    public function planRequests()
+    {
+        return $this->hasMany(PlanRequest::class);
     }
 
     public function user()

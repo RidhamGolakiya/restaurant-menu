@@ -35,165 +35,146 @@ class RestaurantResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Tabs::make('Restaurant')->tabs([
-                    Tab::make('User Details')
-                        ->schema([
-                            Grid::make(2)
-                                ->schema([
-                                    TextInput::make('user_name')
-                                        ->label('User Name')
-                                        ->placeholder('User Name')
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->default(fn ($record) => $record?->user?->name),
-                                    TextInput::make('user_email')
-                                        ->label('Email')
-                                        ->email()
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->default(fn ($record) => $record?->user?->email)
-                                        ->unique('users', 'email', fn ($record) => $record?->user?->id ?? null),
-                                ]),
-                            Grid::make(2)
-                                ->schema([
-                                    TextInput::make('user_password')
-                                        ->label('Password')
-                                        ->placeholder('Password')
-                                        ->password()
-                                        ->required(fn ($context) => $context === 'create')
-                                        ->dehydrated(fn ($state) => filled($state))
-                                        ->visibleOn('create'),
-                                    TextInput::make('user_password_confirmation')
-                                        ->label('Confirm Password')
-                                        ->placeholder('Confirm Password')
-                                        ->password()
-                                        ->required(fn ($context) => $context === 'create')
-                                        ->same('user_password')
-                                        ->visibleOn('create'),
+                Forms\Components\Section::make('Restaurant Details')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('name')
+                                ->label('Restaurant Name')
+                                ->required()
+                                ->maxLength(255)
+                                ->live(debounce: 500)
+                                ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                            TextInput::make('slug')
+                                ->label('URL Slug')
+                                ->required()
+                                ->unique('restaurants', 'slug', ignoreRecord: true),
+                            PhoneInput::make('phone')
+                                ->label('Phone Number')
+                                ->required(),
+                            Select::make('timezone')
+                                ->label('Time Zone')
+                                ->options(getTimeZone())
+                                ->searchable()
+                                ->preload()
+                                ->required(),
+                            Select::make('country_id')
+                                ->label('Country')
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->optionsLimit(Country::count())
+                                ->options(Country::pluck('name', 'id')->toArray()), 
+                            TextInput::make('city')
+                                ->label('City')
+                                ->required(),
+                            Forms\Components\Toggle::make('is_active')
+                                ->label('Status')
+                                ->required()
+                                ->default(true)
+                                ->onColor('success')
+                                ->offColor('danger'),
+                            Select::make('theme')
+                                ->label('Theme')
+                                ->options([
+                                    'default' => 'Default',
+                                    'modern' => 'Modern',
                                 ])
+                                ->required()
+                                ->default('default'),
+                            Select::make('currency_id')
+                                ->label('Currency')
+                                ->relationship('currency', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->required(),
+                                    Forms\Components\TextInput::make('code')
+                                        ->required(),
+                                    Forms\Components\TextInput::make('icon')
+                                        ->label('Symbol')
+                                        ->required(),
+                                ]),
+                            Select::make('type')
+                                ->label('Restaurant Type')
+                                ->options(Restaurant::$types)
+                                ->searchable(),
+                            Forms\Components\Toggle::make('show_on_landing_page')
+                                ->label('Show on Landing Page')
+                                ->default(false)
+                                ->onColor('success')
+                                ->offColor('gray'),
                         ]),
-                    Tab::make('Restaurant Details')
-                        ->schema([
-                            Grid::make(2)->schema([
-                                TextInput::make('name')
-                                    ->label('Restaurant Name:')
-                                    ->placeholder('Restaurant Name')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->live(debounce: 500)
-                                    ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
-                                TextInput::make('slug')
-                                    ->label('URL:')
-                                    ->placeholder('Slug')
-                                    ->required()
-                                    ->unique('restaurants', 'slug', ignoreRecord: true),
-                                PhoneInput::make('phone')
-                                    ->label('Phone Number:')
-                                    ->placeholder('Phone Number')
-                                    ->required(),
-                                Select::make('timezone')
-                                    ->label('Time Zone:')
-                                    ->options(getTimeZone())
-                                    ->searchable()
-                                    ->preload()
-                                    ->required()
-                                    ->native(false),
-                                TextInput::make('zip_code')
-                                    ->label('Zip Code:')
-                                    ->placeholder('Zip Code')
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->maxLength(20),
-                                TextInput::make('city')
-                                    ->label('City:')
-                                    ->placeholder('City')
-                                    ->required()
-                                    ->maxLength(255),
-                                TextInput::make('state')
-                                    ->label('State:')
-                                    ->placeholder('State')
-                                    ->required()
-                                    ->maxLength(255),
-                                Select::make('country_id')
-                                    ->label('Country:')
-                                    ->searchable()
-                                    ->preload()
-                                    ->required()
-                                    ->optionsLimit(Country::count())
-                                    ->native(false)
-                                    ->options(Country::pluck('name', 'id')->toArray()),
-                                Textarea::make('address')
-                                    ->label('Address 1:')
-                                    ->rows(3)
-                                    ->placeholder('Address')
-                                    ->required()
-                                    ->maxLength(255),
-                                Textarea::make('address_2')
-                                    ->label('Address 2:')
-                                    ->placeholder('Address 2')
-                                    ->nullable()
-                                    ->rows(3)
-                                    ->maxLength(255),
-                                TextInput::make('google_map_link')
-                                    ->label('Google Map Link:')
-                                    ->placeholder('Google Map Link')
-                                    ->url()
-                                    ->rule('regex:/^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps|goo\.gl\/maps)\/.+$/i'),
-                                TextInput::make('restaurant_website_link')
-                                    ->label('Restaurant Website:')
-                                    ->placeholder('Restaurant Website Link')
-                                    ->url(),
-                                Textarea::make('overview')
-                                    ->label('Overview:')
-                                    ->rows(4)
-                                    ->placeholder('Restaurant Overview'),
-                            ]),
+                    ]),
+
+                Forms\Components\Section::make('User Account')
+                    ->description('Manage login credentials for this restaurant.')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('user_name')
+                                ->label('User Name')
+                                ->required()
+                                ->maxLength(255)
+                                ->formatStateUsing(fn ($record) => $record?->user?->name)
+                                ->dehydrated(false), // Handled manually
+                            TextInput::make('user_email')
+                                ->label('Email')
+                                ->email()
+                                ->required()
+                                ->maxLength(255)
+                                ->unique('users', 'email', ignoreRecord: true, modifyRuleUsing: function ($rule, $record) {
+                                    if ($record && $record->user) {
+                                        return $rule->ignore($record->user->id);
+                                    }
+                                    return $rule;
+                                })
+                                ->formatStateUsing(fn ($record) => $record?->user?->email)
+                                ->dehydrated(false), // Handled manually
+                            TextInput::make('user_password')
+                                ->label('Password')
+                                ->password()
+                                ->dehydrated(false) // Handled manually
+                                ->required(fn ($context) => $context === 'create')
+                                ->revealable(),
                         ]),
-                    Tab::make('Theme Settings')
-                        ->schema([
-                            Grid::make(2)->schema([
-                                Select::make('theme_mode')
-                                    ->label('Theme Mode')
-                                    ->options([
-                                        'default' => 'Default',
-                                        'black_and_white' => 'Black & White',
-                                        'custom' => 'Custom',
-                                    ])
-                                    ->required()
-                                    ->reactive()
-                                    ->afterStateUpdated(function ($state, $set) {
-                                        if ($state === 'black_and_white') {
-                                            $set('primary_color', '#000000');
-                                            $set('secondary_color', '#ffffff');
-                                            $set('accent_color', '#000000');
-                                        } elseif ($state === 'default') {
-                                            $set('primary_color', null);
-                                            $set('secondary_color', null);
-                                            $set('accent_color', null);
+                    ]),
+
+                Forms\Components\Section::make('Subscription Plan')
+                    ->description('Assign a plan directly.')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            Select::make('plan_id')
+                                ->relationship('plan', 'name')
+                                ->label('Current Plan')
+                                ->searchable()
+                                ->preload()
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, $set) {
+                                    if ($state) {
+                                        $plan = \App\Models\Plan::find($state);
+                                        if ($plan) {
+                                            $set('plan_status', 'active');
+                                            $expiryDate = match ($plan->frequency) {
+                                                'monthly' => now()->addMonth(),
+                                                'yearly' => now()->addYear(),
+                                                default => now()->addMonth(),
+                                            };
+                                            $set('plan_expiry', $expiryDate);
                                         }
-                                    }),
-                                TextInput::make('primary_color')
-                                    ->label('Primary Color')
-                                    ->helperText('Enter color in hex format (e.g., #da3743)')
-                                    ->visible(fn ($get) => $get('theme_mode') === 'custom')
-                                    ->regex('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/')
-                                    ->placeholder('#da3743'),
-                                TextInput::make('secondary_color')
-                                    ->label('Secondary Color')
-                                    ->helperText('Enter color in hex format (e.g., #247f9e)')
-                                    ->visible(fn ($get) => $get('theme_mode') === 'custom')
-                                    ->regex('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/')
-                                    ->placeholder('#247f9e'),
-                                TextInput::make('accent_color')
-                                    ->label('Accent Color')
-                                    ->helperText('Enter color in hex format (e.g., #f59e0b)')
-                                    ->visible(fn ($get) => $get('theme_mode') === 'custom')
-                                    ->regex('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/')
-                                    ->placeholder('#f59e0b'),
-                            ]),
-                        ])
-                ])
+                                    }
+                                }),
+                            Select::make('plan_status')
+                                ->options([
+                                    'active' => 'Active',
+                                    'canceled' => 'Canceled',
+                                    'expired' => 'Expired',
+                                ])
+                                ->label('Status'),
+                            Forms\Components\DatePicker::make('plan_expiry')
+                                ->label('Expiry Date'),
+                        ]),
+                    ])
+                    ->collapsed(),
             ]);
     }
 
@@ -214,12 +195,22 @@ class RestaurantResource extends Resource
                     ->formatStateUsing(fn ($record) => formatPhoneNumber($record?->country_code, $record?->phone))
                     ->label('Phone Number')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Type')
+                    ->badge()
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\IconColumn::make('show_on_landing_page')
+                    ->label('Landing Page')
+                    ->boolean()
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->label(''),
+                Tables\Actions\DeleteAction::make()->label(''),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

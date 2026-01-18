@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Auth\CustomEditProfile;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Restaurant\Pages\Login;
+use App\Models\Restaurant;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -34,11 +35,8 @@ class RestaurantPanelProvider extends PanelProvider
             ->path('')
             ->login(Login::class)
             ->colors([
-                'primary' => Color::Amber,
-                'orange' => Color::Orange,
-                'PastelBlue' => Color::hex('#abd3e0'),
-                'BlueViolet' => Color::hex('#5b65d4'),
-                'PastelMagenta' => Color::hex('#e6bce6'),
+                'primary' => "#6F4E37",
+                'gray' => \Filament\Support\Colors\Color::Stone,
             ])
             ->profile(CustomEditProfile::class, isSimple: false)
             ->discoverResources(in: app_path('Filament/Restaurant/Resources'), for: 'App\\Filament\\Restaurant\\Resources')
@@ -59,10 +57,10 @@ class RestaurantPanelProvider extends PanelProvider
                 Reservations
             </h1>'
             )
-            ->renderHook(
-                'panels::user-menu.before',
-                fn() => view('layout.date-time', ['restaurant' => auth()->user()->restaurant])
-            )
+            // ->renderHook(
+            //     'panels::user-menu.before',
+            //     fn() => view('layout.date-time', ['restaurant' => auth()->user()->restaurant])
+            // )
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, function () {
                 $user = auth()->user();
 

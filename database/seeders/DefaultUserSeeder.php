@@ -21,13 +21,13 @@ class DefaultUserSeeder extends Seeder
             'password' => bcrypt('123456'),
         ]);
         $restaurant = Restaurant::create([
-            'name' => 'Restaurant Admin',
+            'name' => 'Malhar Restaurant',
             'phone' => '9652458965',
             'address' => '123 Main St',
             'address_2' => '123 Main St',
             'city' => 'Surat',
             'state' => 'Gujarat',
-            'country_id' => 1,
+            'country_id' => 101,
             'zip_code' => '12345',
         ]);
 

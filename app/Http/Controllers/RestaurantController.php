@@ -33,8 +33,12 @@ class RestaurantController extends Controller
         $menus = Menu::where('restaurant_id', $restaurant->id)->get();
 
         $settings = $restaurant->user->settings()->get();
-        $currencyId = optional($settings->where('key', 'currency_id')->first())->value ?? '$';
-        $currency = Currency::find($currencyId);
+        $currencyId = optional($settings->where('key', 'currency_id')->first())->value;
+        $currency = $restaurant->currency ?? Currency::find($currencyId);
+
+        if ($restaurant->theme === 'modern') {
+            return view('restaurant.themes.modern', compact('restaurant', 'date', 'restaurantHours', 'otherRestaurants', 'menuCategories', 'menus', 'settings', 'currency'));
+        }
 
         return view('restaurant.home', compact('restaurant', 'date', 'restaurantHours', 'otherRestaurants', 'menuCategories', 'menus', 'settings', 'currency'));
     }

@@ -14,6 +14,10 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
+use Filament\Models\Contracts\HasTenants;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+
 class User extends Authenticatable implements FilamentUser, HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -71,6 +75,8 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     {
         return $this->belongsTo(Restaurant::class);
     }
+
+
 
     public function settings()
     {

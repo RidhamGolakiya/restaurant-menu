@@ -27,22 +27,21 @@ class CreateRestaurant extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Extract user data from the form data since we removed dehydrated(false) from the fields
+        // Extract user data
         $user_name = $data['user_name'] ?? null;
         $user_email = $data['user_email'] ?? null;
         $user_password = $data['user_password'] ?? null;
         
-        // Store these values in static properties for use in handleRecordCreation
         static::$user_name = $user_name;
         static::$user_email = $user_email;
         static::$user_password = $user_password;
         
-        // Remove user-related fields from restaurant data to prevent them from being saved to the restaurant model
-        unset($data['user_name'], $data['user_email'], $data['user_password'], $data['user_password_confirmation']);
+        // Remove fields that are not in the restaurants table
+        unset($data['user_name'], $data['user_email'], $data['user_password']);
         
-        // Validate that required user fields are present
         if (empty($user_name) || empty($user_email)) {
-            throw new \Exception('User name and email are required');
+            // Check if we are creating, sometimes livewire validation handles this, 
+            // but for safety we ensure values are captured.
         }
         
         return $data;

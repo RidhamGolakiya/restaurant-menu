@@ -53,11 +53,11 @@ class Customer extends Model implements HasMedia
 
                     return $state;
                 }),
-            SpatieMediaLibraryFileUpload::make('customer-images')
-                ->label('Image:')
-                ->image()
-                ->disk(config('app.media_disk'))
-                ->collection(self::CUSTOMER_IMAGE),
+            // SpatieMediaLibraryFileUpload::make('customer-images')
+            //     ->label('Image:')
+            //     ->image()
+            //     ->disk(config('app.media_disk'))
+            //     ->collection(self::CUSTOMER_IMAGE),
         ];
     }
 }

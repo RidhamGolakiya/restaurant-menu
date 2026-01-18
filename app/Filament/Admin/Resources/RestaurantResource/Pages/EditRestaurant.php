@@ -28,7 +28,7 @@ class EditRestaurant extends EditRecord
         
         // Remove user-related fields from restaurant data
         $restaurantData = $data;
-        unset($restaurantData['user_name'], $restaurantData['user_email'], $restaurantData['user_password'], $restaurantData['user_password_confirmation']);
+        unset($restaurantData['user_name'], $restaurantData['user_email'], $restaurantData['user_password']);
         
         // Update restaurant
         $record->update($restaurantData);

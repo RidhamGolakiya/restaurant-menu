@@ -67,17 +67,14 @@ class AdminPanelProvider extends PanelProvider
             ];
         } else { // default
             $colors = [
-                'primary' => Color::Amber,
-                'orange' => Color::Orange,
-                'PastelBlue' => Color::hex('#abd3e0'),
-                'BlueViolet' => Color::hex('#5b65d4'),
-                'PastelMagenta' => Color::hex('#e6bce6'),
+                'primary' => Color::Gray,
+                'gray' => Color::Gray,
             ];
         }
 
         return $panel
             ->id('admin')
-            ->path('admin')
+            ->path('innomi-tech')
             ->login()
             ->default() 
             ->colors($colors)
@@ -85,10 +82,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
             ->renderHook(PanelsRenderHook::USER_MENU_PROFILE_AFTER, fn() => Blade::render('@livewire(\'ChangePassword\')'))
-            ->renderHook(
-                'panels::user-menu.before',
-                fn() => view('layout.date-time')
-            )
+            // ->renderHook(
+            //     'panels::user-menu.before',
+            //     fn() => view('layout.date-time')
+            // )
             ->pages([
                 \App\Filament\Admin\Pages\Dashboard::class,
             ])

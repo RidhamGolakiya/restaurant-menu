@@ -58,7 +58,7 @@ class MenuResource extends Resource
 
                 TextColumn::make('price')
                     ->alignRight()
-                    ->formatStateUsing(fn (Menu $record) => currencyIcon().' '.$record->price)
+                    ->formatStateUsing(fn (Menu $record) => (auth()->user()->restaurant->currency->icon ?? currencyIcon()).' '.$record->price)
                     ->sortable(),
                 Tables\Columns\ToggleColumn::make('today_special')
                     ->label('Today Special')

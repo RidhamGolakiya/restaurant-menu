@@ -3,10 +3,17 @@
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\RestaurantTimingController;
 use App\Http\Controllers\UnsubscribeUserController;
+use App\Http\Controllers\QrCodeController;
+use App\Http\Controllers\DemoBookingController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('/demo-booking', [DemoBookingController::class, 'store'])->name('demo.store');
+
+Route::get('/qr/{uuid}', [QrCodeController::class, 'scan'])->name('qr.scan');
+
 Route::get('/', function () {
-    return redirect('/login');
+    $restaurants = \App\Models\Restaurant::where('show_on_landing_page', true)->get();
+    return view('landing-page', compact('restaurants'));
 });
 Route::post('/restaurant/timing/save', [RestaurantTimingController::class, 'save'])
     ->name('restaurant.timing.save')
