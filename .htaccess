@@ -1,13 +1,9 @@
 RewriteEngine On
+Require all granted
 
-# Serve storage files directly
+# Allow storage files
 RewriteRule ^storage(/.*)?$ public/storage$1 [L]
 
-# Serve public assets directly
-RewriteCond %{REQUEST_URI} ^/(css|js|images|build|vendor|files|favicon\.ico)
+# Forward everything else to public
+RewriteCond %{REQUEST_URI} !^/public/
 RewriteRule ^(.*)$ public/$1 [L]
-
-# Route everything else to Laravel
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ public/index.php [L]

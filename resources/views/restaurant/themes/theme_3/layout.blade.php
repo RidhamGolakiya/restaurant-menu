@@ -106,14 +106,16 @@
                  ease: "power2.out",
                  onComplete: () => {
                      // Then animate the reveal elements
-                     gsap.from(".gs-reveal", { 
-                         y: 20, 
-                         opacity: 0, 
-                         duration: 0.6, 
-                         stagger: 0.1, 
-                         ease: "power2.out",
-                         clearProps: "all"
-                     });
+                     gsap.fromTo(".gs-reveal", 
+                         { y: 20, opacity: 0 },
+                         { 
+                             y: 0, 
+                             opacity: 1, 
+                             duration: 0.6, 
+                             stagger: 0.1, 
+                             ease: "power2.out"
+                         }
+                     );
                  }
              });
         });
