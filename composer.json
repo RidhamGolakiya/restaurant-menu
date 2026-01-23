@@ -26,6 +26,7 @@
         "opcodesio/log-viewer": "^3.18",
         "propaganistas/laravel-phone": "^6.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "spatie/laravel-backup": "^9.3",
         "spatie/laravel-flare": "^2.0",
         "spatie/laravel-medialibrary": "^11.13",
         "spatie/laravel-permission": "^6.20",

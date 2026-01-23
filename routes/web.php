@@ -30,3 +30,9 @@ Route::get('r/{slug}/c/{categorySlug}', [RestaurantController::class, 'category'
 Route::get('r/{slug}/p/{productSlug}', [RestaurantController::class, 'product'])->name('restaurant.product');
 Route::get('r/{slug}/best-seller-food', [RestaurantController::class, 'bestSellerFood'])->name('restaurant.best-seller.food');
 Route::get('r/{slug}/best-seller-drink', [RestaurantController::class, 'bestSellerDrink'])->name('restaurant.best-seller.drink');
+
+// Catch-all route for React SPA (Theme 4)
+// This ensures that reloading pages like /best-sellers works correctly by serving the index view
+Route::get('r/{slug}/{any}', [RestaurantController::class, 'index'])
+    ->where('slug', '[a-zA-Z0-9\-]+')
+    ->where('any', '.*');

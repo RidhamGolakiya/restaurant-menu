@@ -60,6 +60,12 @@ class RestaurantResource extends Resource
                                         ->searchable()
                                         ->preload()
                                         ->required(),
+                                    TextInput::make('google_place_id')
+                                        ->label('Google Place ID')
+                                        ->helperText('Found in Google Maps URL or Place Finder'),
+                                    TextInput::make('google_data_id')
+                                        ->label('SerpApi Data ID (Feature ID)')
+                                        ->helperText('Starts with 0x... Required for SerpApi reviews'),
                                     Select::make('country_id')
                                         ->label('Country')
                                         ->searchable()
@@ -82,9 +88,14 @@ class RestaurantResource extends Resource
                                             'default' => 'Default',
                                             'modern' => 'Modern',
                                             'theme_3' => 'Dynamic Theme 3',
+                                            'theme_4' => 'Theme 4 (React)',
                                         ])
                                         ->required()
                                         ->default('default'),
+                                    TextInput::make('theme_config.established_text')
+                                        ->label('Established Text (e.g., ESTABLISHED 2026)')
+                                        ->placeholder('ESTABLISHED 2010')
+                                        ->maxLength(50),
                                     Select::make('currency_id')
                                         ->label('Currency')
                                         ->relationship('currency', 'name')

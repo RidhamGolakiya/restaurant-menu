@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 class RestaurantController extends Controller
 {
 
-    public function index($slug)
+    public function index($slug, $any = null)
     {
         $restaurant = Restaurant::where('slug', $slug)->firstOrFail();
 
@@ -57,6 +57,91 @@ class RestaurantController extends Controller
         if ($restaurant->theme === 'theme_3') {
             $categories = $menuCategories; // Reusing variable
             return view('restaurant.themes.theme_3.index', compact('restaurant', 'categories', 'baseCategories', 'settings', 'currency'));
+        }
+
+        if ($restaurant->theme === 'theme_4') {
+            // Prepare data for React application
+            $cats = $restaurant->menuCategories()->with('media', 'baseCategory')->get()->map(function ($cat) {
+                return [
+                    'id' => (string) $cat->id,
+                    'name' => $cat->name,
+                    'group' => $cat->baseCategory ? $cat->baseCategory->name : 'Other',
+                    'image' => $cat->getFirstMediaUrl('category_image'),
+                    'description' => $cat->description,
+                ];
+            });
+
+            $foodItems = \App\Models\Menu::where('restaurant_id', $restaurant->id)
+                ->with('media')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => (string) $item->id,
+                        'categoryId' => (string) $item->category_id,
+                        'name' => $item->name,
+                        'price' => (float) $item->price,
+                        'rating' => 5.0, // Hardcoded for now
+                        'image' => $item->getFirstMediaUrl('menu_image'),
+                        'description' => $item->description,
+                        'ingredients' => $item->ingredients ? array_map('trim', explode(',', $item->ingredients)) : [],
+                        'bestSelling' => (bool) $item->is_best_seller,
+                        'special' => (bool) $item->today_special,
+                        'tag' => $item->today_special ? 'Chef\'s Special' : null,
+                    ];
+                });
+
+            $specials = $foodItems->filter(fn($f) => $f['special'])->values();
+            
+            $reviews = $restaurant->reviews()
+                ->where('is_visible', true)
+                ->orderBy('time', 'desc')
+                ->take(10)
+                ->get()
+                ->map(function ($review) {
+                    return [
+                        'id' => $review->id,
+                        'author_name' => $review->author_name,
+                        'author_url' => $review->author_url,
+                        'profile_photo_url' => $review->profile_photo_url,
+                        'rating' => $review->rating,
+                        'text' => $review->text,
+                        'relative_time_description' => $review->relative_time_description,
+                        'time' => $review->time ? $review->time->timestamp : null,
+                    ];
+                });
+
+            // Construct the RESTAURANT_DATA object
+            $restaurantData = [
+                'restaurant' => [
+                    'name' => $restaurant->name,
+                    'slug' => $restaurant->slug,
+                    'logo' => $restaurant->getFirstMediaUrl('logo'),
+                    'phone' => $restaurant->phone,
+                    'address' => $restaurant->address,
+                    'city' => $restaurant->city,
+                    'zip_code' => $restaurant->zip_code,
+                    'social_links' => $restaurant->social_links,
+                    'description' => $restaurant->description, // Added description
+                    'created_at' => $restaurant->created_at->format('Y'), // Added creation year
+                    'established_text' => $restaurant->theme_config['established_text'] ?? null,
+                    'currency' => $currency->symbol ?? '$', // Handle currency symbol
+                ],
+                'opening_hours' => $restaurantHours->map(function ($slot) {
+                    return [
+                        'day' => $slot->day_name,
+                        'open' => \Carbon\Carbon::parse($slot->open_time)->format('g:i A'),
+                        'close' => \Carbon\Carbon::parse($slot->close_time)->format('g:i A'),
+                    ];
+                }),
+                'categories' => $cats,
+                'foods' => $foodItems,
+                'specials' => $specials,
+                'offers' => [], // Placeholder for now
+                'reviews' => $reviews,
+                'settings' => $settings->pluck('value', 'key')->all(),
+            ];
+
+            return view('restaurant.themes.theme_4.index', compact('restaurant', 'restaurantData', 'settings'));
         }
 
         return view('restaurant.home', compact('restaurant', 'date', 'restaurantHours', 'otherRestaurants', 'menuCategories', 'menus', 'settings', 'currency'));

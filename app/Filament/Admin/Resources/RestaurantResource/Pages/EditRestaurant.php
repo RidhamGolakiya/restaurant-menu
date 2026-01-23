@@ -53,4 +53,28 @@ class EditRestaurant extends EditRecord
         
         return $record;
     }
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('syncReviews')
+                ->label('Sync Reviews')
+                ->icon('heroicon-o-arrow-path')
+                ->action(function () {
+                    try {
+                        $count = app(\App\Actions\FetchGoogleReviewsAction::class)->execute($this->record);
+                        Notification::make()
+                            ->title("Synced {$count} reviews successfully")
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Failed to sync reviews')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
+            Actions\DeleteAction::make(),
+        ];
+    }
 }

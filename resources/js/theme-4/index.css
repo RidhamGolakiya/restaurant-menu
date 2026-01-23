@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+
+@theme {
+  --color-cafe-light: #FDFCF0;
+  --color-cafe-dark: #1A1A1A;
+  --color-cafe-primary: #D4A373;
+  --color-cafe-secondary: #FAEDCD;
+  --color-cafe-accent: #CCD5AE;
+  --color-cafe-text: #4A3728;
+  --color-cafe-text-dark: #E9EDC9;
+}
+
+body {
+  @apply bg-cafe-light text-cafe-text transition-colors duration-300;
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.dark body {
+  @apply bg-cafe-dark text-cafe-text-dark;
+}
+
+/* GSAP Helper Classes */
+.gsap-reveal {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+}

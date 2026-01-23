@@ -8,4 +8,12 @@
 @theme {
     --font-sans: 'Plus Jakarta Sans', 'Lato', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-serif: 'Playfair Display', 'Times New Roman', serif;
+
+    --color-cafe-light: #FDFCF0;
+    --color-cafe-dark: #1A1A1A;
+    --color-cafe-primary: #D4A373;
+    --color-cafe-secondary: #FAEDCD;
+    --color-cafe-accent: #CCD5AE;
+    --color-cafe-text: #4A3728;
+    --color-cafe-text-dark: #E9EDC9;
 }

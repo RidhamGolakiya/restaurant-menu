@@ -26,6 +26,8 @@ class Restaurant extends Model implements HasMedia
         'state',
         'zip_code',
         'google_map_link',
+        'google_place_id',
+        'google_data_id',
         'country_id',
         'uuid',
         'restaurant_website_link',
@@ -111,6 +113,11 @@ class Restaurant extends Model implements HasMedia
     public function timingSlots()
     {
         return $this->hasMany(RestaurantTimingSlot::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 
     public function getPhotosAttribute()

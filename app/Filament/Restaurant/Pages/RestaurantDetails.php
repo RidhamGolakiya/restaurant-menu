@@ -38,6 +38,11 @@ class RestaurantDetails extends Page implements HasForms
         return 'Restaurant Details';
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
+
     public function mount(): void
     {
         // Load restaurant details with timing slots
@@ -110,6 +115,10 @@ class RestaurantDetails extends Page implements HasForms
                                         ->regex('/^[a-zA-Z0-9-]+$/')
                                         ->unique('restaurants', 'slug', ignoreRecord: true)
                                         ->required(),
+                                    TextInput::make('theme_config.established_text')
+                                        ->label('Established Text (e.g., ESTABLISHED 2026)')
+                                        ->placeholder('ESTABLISHED 2010')
+                                        ->maxLength(50),
                                     PhoneInput::make('phone')
                                         ->label('Phone Number')
                                         ->placeholder('Phone Number')
@@ -170,6 +179,10 @@ class RestaurantDetails extends Page implements HasForms
                                     TextInput::make('google_map_link')
                                         ->label('Google Map Link')
                                         ->url()
+                                        ->columnSpanFull(),
+                                    TextInput::make('google_data_id')
+                                        ->label('SerpApi Data ID')
+                                        ->helperText('Start with 0x... Required for reviews. Find it via SerpApi or our support.')
                                         ->columnSpanFull(),
                                 ])->columns(2),
                             ]),
