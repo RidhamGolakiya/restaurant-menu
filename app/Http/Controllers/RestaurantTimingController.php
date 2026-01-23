@@ -10,12 +10,6 @@ class RestaurantTimingController extends Controller
 {
     public function save(Request $request)
     {
-        if (Auth::user()->email === config('app.demo_email')) {
-            return response()->json([
-                'status' => false,
-                'message' => 'You are not allowed to perform this action.',
-            ], 403);
-        }
         $restaurantId = auth()->user()->restaurant_id;
         $timings = $request->input('timings', []);
     

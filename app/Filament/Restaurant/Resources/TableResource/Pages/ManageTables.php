@@ -25,16 +25,6 @@ class ManageTables extends ManageRecords
                     $data['restaurant_id'] = $restaurantId;
                     return $this->getResource()::getModel()::create($data);
                 })
-                ->before(function ($action) {
-                    if (auth()->user()->email === config('app.demo_email')) {
-                        Notification::make()
-                            ->title('You are not allowed to perform this action.')
-                            ->danger()
-                            ->send();
-
-                        $action->halt();
-                    }
-                }),
         ];
     }
 }

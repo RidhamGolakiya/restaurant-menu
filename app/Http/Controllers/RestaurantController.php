@@ -27,8 +27,22 @@ class RestaurantController extends Controller
         $restaurantHours = RestaurantTimingSlot::where('restaurant_id', $restaurant->id)->get();
 
         $otherRestaurants = Restaurant::where('id', '!=', $restaurant->id)->get();
+        
+        $baseCategories = \App\Models\BaseCategory::where('restaurant_id', $restaurant->id)
+            ->orderBy('sort_order')
+            ->with(['menuCategories' => function ($query) {
+                $query->whereHas('menuItems')->orderBy('sort_order'); // Only load categories that have items and sort them
+            }, 'menuCategories.media', 'menuCategories.menuItems.media']) // Load media for products and categories
+            ->whereHas('menuCategories.menuItems') // Only load base categories that have items
+            ->get();
 
-        $menuCategories = $restaurant->menuCategories()->with('menuItems')->get();
+        // Fallback for categories without base category? 
+        // Or we assume all categories should have a base now?
+        // Let's also fetch orphan menu categories just in case, or if the user wants to show them separately.
+        // For now, let's assume we want to show everything. 
+        // If specific requirement is "Menu category create via Base category", we might want to prioritize that structure.
+        
+        $menuCategories = $restaurant->menuCategories()->with('menuItems')->get(); // Keep this for now for compatibility or other themes
 
         $menus = Menu::where('restaurant_id', $restaurant->id)->get();
 
@@ -37,12 +51,12 @@ class RestaurantController extends Controller
         $currency = $restaurant->currency ?? Currency::find($currencyId);
 
         if ($restaurant->theme === 'modern') {
-            return view('restaurant.themes.modern', compact('restaurant', 'date', 'restaurantHours', 'otherRestaurants', 'menuCategories', 'menus', 'settings', 'currency'));
+            return view('restaurant.themes.modern', compact('restaurant', 'date', 'restaurantHours', 'otherRestaurants', 'menuCategories', 'baseCategories', 'menus', 'settings', 'currency'));
         }
 
         if ($restaurant->theme === 'theme_3') {
             $categories = $menuCategories; // Reusing variable
-            return view('restaurant.themes.theme_3.index', compact('restaurant', 'categories', 'settings', 'currency'));
+            return view('restaurant.themes.theme_3.index', compact('restaurant', 'categories', 'baseCategories', 'settings', 'currency'));
         }
 
         return view('restaurant.home', compact('restaurant', 'date', 'restaurantHours', 'otherRestaurants', 'menuCategories', 'menus', 'settings', 'currency'));
@@ -52,11 +66,20 @@ class RestaurantController extends Controller
     {
         $restaurant = Restaurant::where('slug', $slug)->firstOrFail();
         $category = \App\Models\MenuCategory::where('restaurant_id', $restaurant->id)->where('slug', $categorySlug)->firstOrFail();
-        $products = \App\Models\Menu::where('category_id', $category->id)->get();
+        $products = \App\Models\Menu::where('category_id', $category->id)->with('media')->get();
         // Theme check
         if ($restaurant->theme === 'theme_3') {
              return view('restaurant.themes.theme_3.category', compact('restaurant', 'category', 'products'));
         }
+
+        if ($restaurant->theme === 'modern') {
+             $settings = $restaurant->user->settings()->get();
+             $currencyId = optional($settings->where('key', 'currency_id')->first())->value;
+             $currency = $restaurant->currency ?? Currency::find($currencyId);
+
+             return view('restaurant.themes.modern.category', compact('restaurant', 'category', 'products', 'settings', 'currency'));
+        }
+        
         abort(404); // Or default view
     }
 

@@ -249,6 +249,10 @@ class RestaurantResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()->label(''),
                 Tables\Actions\DeleteAction::make()->label(''),
+                Tables\Actions\ViewAction::make()
+                    ->label('')
+                    ->url(fn ($record) => url('/r/' . $record->slug))
+                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

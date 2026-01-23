@@ -90,11 +90,6 @@ class Setting extends Page implements HasForms
                                     ->optionsLimit(Currency::count())
                                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->icon} - {$record->name}")
                                     ->required(),
-                                TextInput::make('vapi_auth_token')
-                                    ->password()
-                                    ->placeholder('VAPI Auth Token')
-                                    ->label('VAPI Auth Token:')
-                                    ->revealable(fn ($get) => auth()->user()->email !== config('app.demo_email')),
                             ])->columns(3),
                     ])->columns(1),
             ])
@@ -103,14 +98,6 @@ class Setting extends Page implements HasForms
 
     public function save(): void
     {
-        if (auth()->user()->email === config('app.demo_email')) {
-            Notification::make()
-                ->danger()
-                ->title('You are not allowed to perform this action.')
-                ->send();
-
-            return;
-        }
 
         $data = $this->form->getState();
 

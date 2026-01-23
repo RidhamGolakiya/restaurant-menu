@@ -96,16 +96,6 @@ class ManageMenus extends ManageRecords
                 ->createAnother(false)
                 ->modalWidth('lg')
                 ->successNotificationTitle('Menu Created Successfully')
-                ->before(function ($action) {
-                    if (auth()->user()->email === config('app.demo_email')) {
-                        Notification::make()
-                            ->title('You are not allowed to perform this action.')
-                            ->danger()
-                            ->send();
-
-                        $action->halt();
-                    }
-                }),
         ];
     }
 }

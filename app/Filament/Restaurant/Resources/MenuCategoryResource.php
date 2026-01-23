@@ -46,10 +46,17 @@ class MenuCategoryResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->where('restaurant_id', auth()->user()->restaurant_id);
             })
-            ->defaultSort('created_at', 'desc')
+            ->reorderable('sort_order')
+            ->defaultSort('sort_order')
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+                TextColumn::make('baseCategory.name')
+                    ->label('Base Category')
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
                 TextColumn::make('menus_count')
                     ->label('Items Count')
                     ->badge()
@@ -70,17 +77,7 @@ class MenuCategoryResource extends Resource
                     ->tooltip('Edit')
                     ->iconButton()
                     ->modalWidth('md')
-                    ->successNotificationTitle('Menu Category Updated Successfully')
-                    ->before(function ($action) {
-                        if (auth()->user()->email === config('app.demo_email')) {
-                            Notification::make()
-                                ->title('You are not allowed to perform this action.')
-                                ->danger()
-                                ->send();
-
-                            $action->halt();
-                        }
-                    }),
+                    ->successNotificationTitle('Menu Category Updated Successfully'),
                 Tables\Actions\DeleteAction::make()
                     ->tooltip('Delete')
                     ->iconButton()
@@ -93,14 +90,6 @@ class MenuCategoryResource extends Resource
                                 ->danger()
                                 ->send();
                 
-                            $action->halt();
-                        }
-                        if (auth()->user()->email === config('app.demo_email')) {
-                            Notification::make()
-                                ->title('You are not allowed to perform this action.')
-                                ->danger()
-                                ->send();
-
                             $action->halt();
                         }
                     }),
@@ -121,15 +110,6 @@ class MenuCategoryResource extends Resource
                 
                                     $action->halt();
                                 }
-                            }
-
-                            if (auth()->user()->email === config('app.demo_email')) {
-                                Notification::make()
-                                    ->title('You are not allowed to perform this action.')
-                                    ->danger()
-                                    ->send();
-    
-                                $action->halt();
                             }
                         }),
                 ]),

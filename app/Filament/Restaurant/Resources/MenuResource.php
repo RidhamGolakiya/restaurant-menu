@@ -40,7 +40,6 @@ class MenuResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->where('restaurant_id', auth()->user()->restaurant_id);
             })
-            ->defaultSort('created_at', 'desc')
             ->columns([
                 SpatieMediaLibraryImageColumn::make('menu_image')
                     ->collection(Menu::MENU_IMAGE)
@@ -62,7 +61,6 @@ class MenuResource extends Resource
                     ->sortable(),
                 Tables\Columns\ToggleColumn::make('today_special')
                     ->label('Today Special')
-                    ->disabled(auth()->user()->email === config('app.demo_email'))
                     ->afterStateUpdated(function (Menu $record, bool $state) {
                         $record->update(['today_special' => $state]);
                         $record->save();
@@ -91,16 +89,6 @@ class MenuResource extends Resource
                     ->iconButton()
                     ->modalWidth('lg')
                     ->successNotificationTitle('Menu Updated Successfully')
-                    ->before(function ($action) {
-                        if (auth()->user()->email === config('app.demo_email')) {
-                            Notification::make()
-                                ->title('You are not allowed to perform this action.')
-                                ->danger()
-                                ->send();
-
-                            $action->halt();
-                        }
-                    })
                     ->mountUsing(function ($form, $record) {
                         usleep(100000);
                         $form->fill($record->toArray());
@@ -109,31 +97,11 @@ class MenuResource extends Resource
                     ->tooltip('Delete')
                     ->iconButton()
                     ->successNotificationTitle('Menu Deleted Successfully')
-                    ->before(function ($action) {
-                        if (auth()->user()->email === config('app.demo_email')) {
-                            Notification::make()
-                                ->title('You are not allowed to perform this action.')
-                                ->danger()
-                                ->send();
-
-                            $action->halt();
-                        }
-                    }),
             ])
             ->actionsColumnLabel('Actions')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->before(function ($action) {
-                            if (auth()->user()->email === config('app.demo_email')) {
-                                Notification::make()
-                                    ->title('You are not allowed to perform this action.')
-                                    ->danger()
-                                    ->send();
-
-                                $action->halt();
-                            }
-                        })
                         ->successNotificationTitle('Menus Deleted Successfully'),
                 ]),
             ])

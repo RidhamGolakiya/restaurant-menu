@@ -1,9 +1,14 @@
+@php
+    $settings = getGlobalSettings();
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Restaurant SaaS') }} - Book Your Onboarding Demo</title>
+    <title>{{ $settings['seo_title'] ?? config('app.name', 'Restaurant SaaS') }}</title>
+    <meta name="description" content="{{ $settings['seo_description'] ?? 'The all-in-one platform to manage menus, reservations, and orders.' }}">
+    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : asset('favicon.ico') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -35,7 +40,7 @@
             <div class="flex justify-between h-16 items-center">
                 <div class="flex-shrink-0 flex items-center gap-2">
                     <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600">
-                        {{ config('app.name', 'Restaurant SaaS') }}
+                        {{ $settings['site_name'] ?? config('app.name', 'Restaurant SaaS') }}
                     </span>
                 </div>
                 <div class="hidden md:flex gap-8">
@@ -57,7 +62,7 @@
     <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <span class="inline-block py-1 px-3 rounded-full bg-primary-50 text-primary-700 text-sm font-semibold mb-6">
-                🚀 Managing 500+ Restaurants Worldwide
+                🚀 Managing 16+ Restaurants Worldwide
             </span>
             <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-6 leading-tight">
                 Simplify Your Restaurant <br class="hidden md:block">
@@ -293,7 +298,7 @@
     <footer class="bg-gray-900 text-gray-400 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-4 gap-8">
             <div class="col-span-2">
-                <span class="text-2xl font-bold text-white mb-4 block">{{ config('app.name', 'Restaurant SaaS') }}</span>
+                <span class="text-2xl font-bold text-white mb-4 block">{{ $settings['site_name'] ?? config('app.name', 'Restaurant SaaS') }}</span>
                 <p class="max-w-xs">Empowering restaurants with the best tools to manage operations, reservations, and customer experiences.</p>
             </div>
             <div>
@@ -316,7 +321,7 @@
             </div>
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-gray-800 text-center text-sm">
-            &copy; {{ date('Y') }} {{ config('app.name', 'Restaurant SaaS') }}. All rights reserved.
+            &copy; {{ date('Y') }} {{ $settings['site_name'] ?? config('app.name', 'Restaurant SaaS') }}. All rights reserved.
         </div>
     </footer>
 

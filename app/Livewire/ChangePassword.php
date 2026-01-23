@@ -61,14 +61,6 @@ class ChangePassword extends Component implements HasForms
 
     public function save()
     {
-        if (auth()->user()->email === config('app.demo_email')) {
-            Notification::make()
-                ->danger()
-                ->title('You are not allowed to perform this action.')
-                ->send();
-
-            return;
-        }
         $this->validate();
 
         $user = Auth::user();

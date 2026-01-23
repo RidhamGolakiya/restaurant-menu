@@ -22,6 +22,8 @@ class MenuCategory extends Model implements HasMedia
         'name',
         'description',
         'slug',
+        'base_category_id',
+        'sort_order',
     ];
 
     public function menuItems()
@@ -32,6 +34,26 @@ class MenuCategory extends Model implements HasMedia
     public static function formSchema(): array
     {
         return [
+            \Filament\Forms\Components\Select::make('base_category_id')
+                ->label('Base Category')
+                ->relationship('baseCategory', 'name', modifyQueryUsing: fn ($query) => $query->where('restaurant_id', auth()->user()->restaurant_id))
+                ->searchable()
+                ->preload()
+                ->createOptionForm([
+                    \Filament\Forms\Components\TextInput::make('name')
+                        ->required()
+                        ->maxLength(255)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
+                    \Filament\Forms\Components\TextInput::make('slug')
+                        ->required()
+                        ->maxLength(255),
+                    \Filament\Forms\Components\Hidden::make('restaurant_id')
+                        ->default(auth()->user()->restaurant_id),
+                ])
+                ->createOptionUsing(function (array $data) {
+                    return \App\Models\BaseCategory::create($data)->id;
+                }),
             TextInput::make('name')
                 ->label('Name:')
                 ->placeholder('Name')
@@ -61,5 +83,10 @@ class MenuCategory extends Model implements HasMedia
     public function menus()
     {
         return $this->hasMany(Menu::class, 'category_id', 'id');
+    }
+
+    public function baseCategory()
+    {
+        return $this->belongsTo(BaseCategory::class, 'base_category_id');
     }
 }

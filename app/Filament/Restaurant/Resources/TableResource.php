@@ -65,17 +65,7 @@ class TableResource extends Resource
                     ->modalHeading('Edit Table')
                     ->successNotificationTitle('Table updated successfully')
                     ->iconButton()
-                    ->modalWidth('md')
-                    ->before(function (EditAction $action) {
-                        if (auth()->user()->email === config('app.demo_email')) {
-                            Notification::make()
-                                ->title('You are not allowed to perform this action.')
-                                ->danger()
-                                ->send();
-
-                            $action->halt();
-                        }
-                    }),
+                    ->modalWidth('md'),
                 Tables\Actions\DeleteAction::make()->iconButton()->tooltip('Delete')
                     ->successNotificationTitle('Table deleted successfully')
                     ->before(function ($action) {
@@ -83,13 +73,6 @@ class TableResource extends Resource
                         if ($table->reservations()->count() > 0) {
                             Notification::make()
                                 ->title('This table cannot be deleted.')
-                                ->danger()
-                                ->send();
-                
-                            $action->halt();
-                        } elseif (auth()->user()->email === config('app.demo_email')) {
-                            Notification::make()
-                                ->title('You are not allowed to perform this action.')
                                 ->danger()
                                 ->send();
                 

@@ -270,10 +270,6 @@ class RestaurantDetails extends Page implements HasForms
 
     public function save(): void
     {
-        if (auth()->user()->email === config('app.demo_email')) {
-            Notification::make()->danger()->title('Action not allowed in demo.')->send();
-            return;
-        }
 
         $data = $this->form1->getState();
 

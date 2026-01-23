@@ -57,15 +57,6 @@ class Reservations extends Page implements HasTable
                     $startTime = $data['start_time'];
                     $endTime = $data['end_time'];
 
-                    if (auth()->user()->email === config('app.demo_email')) {
-                        Notification::make()
-                            ->title('You are not allowed to perform this action.')
-                            ->danger()
-                            ->send();
-
-                        $action->halt();
-                    }
-
                     if ($endTime <= $startTime) {
                         Notification::make()->title('End Time should be greater than Start Time')->danger()->send();
                         $action->halt();
@@ -187,16 +178,6 @@ class Reservations extends Page implements HasTable
                 ->modalHeading('Create Reservation')
                 ->modalSubmitActionLabel('Create Reservation')
                 ->modalWidth('lg')
-                ->before(function ($action) {
-                    if (auth()->user()->email === config('app.demo_email')) {
-                        Notification::make()
-                            ->title('You are not allowed to perform this action.')
-                            ->danger()
-                            ->send();
-
-                        $action->halt();
-                    }
-                }),
         ];
     }
 

@@ -32,16 +32,6 @@ class ManageUsers extends ManageRecords
                         ->title(__('User Created Successfully'))
                         ->send();
                 })
-                ->before(function ($action) {
-                    if (auth()->user()->email === config('app.demo_email')) {
-                        Notification::make()
-                            ->title('You are not allowed to perform this action.')
-                            ->danger()
-                            ->send();
-
-                        $action->halt();
-                    }
-                }),
         ];
     }
 }

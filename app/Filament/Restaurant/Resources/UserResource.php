@@ -85,7 +85,6 @@ class UserResource extends Resource
                     ->searchable(),
                 ToggleColumn::make('status')
                     ->label('Status')
-                    ->disabled(Auth::user()->email === config('app.demo_email'))
                     ->afterStateUpdated(function ($state, $record) {
                         $record->status = $state ? User::ACTIVE : User::INACTIVE;
                         $record->save();
@@ -105,31 +104,11 @@ class UserResource extends Resource
                     ->modalWidth('md')
                     ->tooltip('Edit')
                     ->modalHeading('Edit User')
-                    ->iconButton()
-                    ->before(function ($action) {
-                        if (auth()->user()->email === config('app.demo_email')) {
-                            Notification::make()
-                                ->title('You are not allowed to perform this action.')
-                                ->danger()
-                                ->send();
-
-                            $action->halt();
-                        }
-                    }),
+                    ->iconButton(),
                 Tables\Actions\DeleteAction::make()
                     ->tooltip('Delete')
                     ->successNotificationTitle('User deleted successfully')
                     ->iconButton()
-                    ->before(function ($action) {
-                        if (auth()->user()->email === config('app.demo_email')) {
-                            Notification::make()
-                                ->title('You are not allowed to perform this action.')
-                                ->danger()
-                                ->send();
-
-                            $action->halt();
-                        }
-                    }),
             ])
             ->recordAction(null)
             ->recordUrl(null)

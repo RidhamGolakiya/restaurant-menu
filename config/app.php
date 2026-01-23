@@ -126,6 +126,5 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'demo_email' => env('DEMO_EMAIL', 'demo@gmail.com'),
     'status_update_interval' => env('STATUS_UPDATE_INTERVAL', 5), // in minutes
 ];

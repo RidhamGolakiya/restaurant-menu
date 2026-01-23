@@ -17,6 +17,16 @@ if (! function_exists('getUserSettings')) {
     }
 }
 
+if (! function_exists('getGlobalSettings')) {
+
+    function getGlobalSettings()
+    {
+        $settings = Setting::whereNull('user_id')->pluck('value', 'key')->toArray();
+
+        return $settings;
+    }
+}
+
 if (! function_exists('restaurantTableHours')) {
 
     function restaurantTableHours($restaurantID)

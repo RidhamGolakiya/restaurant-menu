@@ -103,6 +103,11 @@ class Restaurant extends Model implements HasMedia
         return $this->hasOne(User::class, 'restaurant_id');
     }
 
+    public function baseCategories()
+    {
+        return $this->hasMany(BaseCategory::class, 'restaurant_id');
+    }
+
     public function timingSlots()
     {
         return $this->hasMany(RestaurantTimingSlot::class);

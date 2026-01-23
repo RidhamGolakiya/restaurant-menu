@@ -4,7 +4,7 @@
 
 @section('content')
     <!-- Best Seller Section -->
-    <section style="padding: 2.5rem 0;">
+    <section>
         <h2 class="section-title gs-reveal">Best Seller</h2>
         <div class="best-seller-grid">
             <a href="{{ route('restaurant.best-seller.food', $restaurant->slug) }}" class="bs-card gs-reveal">
@@ -30,14 +30,18 @@
         </div>
     </section>
 
-    <!-- All Categories -->
+    <!-- Base Categories Sections -->
+    @foreach($baseCategories as $baseCategory)
     <section style="padding: 2.5rem 0;">
-        <h2 class="section-title gs-reveal">All Categories</h2>
-        <div class="card-grid" id="food-categories">
-            @foreach($categories as $category)
+        <h2 class="section-title gs-reveal">{{ $baseCategory->name }}</h2>
+        <div class="card-grid">
+            @foreach($baseCategory->menuCategories as $category)
             <a href="{{ route('restaurant.category', ['slug' => $restaurant->slug, 'categorySlug' => $category->slug ?? Str::slug($category->name)]) }}" class="cat-card gs-reveal">
                 <div class="cat-img-box">
-                    <img src="{{ $category->getFirstMediaUrl('category_image') ?: 'https://placehold.co/400x300?text=' . urlencode($category->name) }}" 
+                    @php
+                        $categoryImage = $category->getFirstMediaUrl('category_image');
+                    @endphp
+                    <img src="{{ $categoryImage ?: 'https://placehold.co/400x300?text=' . urlencode($category->name) }}" 
                          class="cat-img" 
                          alt="{{ $category->name }}"
                          onerror="this.onerror=null;this.src='https://placehold.co/400x300?text={{ urlencode($category->name) }}';">
@@ -47,6 +51,7 @@
             @endforeach
         </div>
     </section>
+    @endforeach
 @endsection
 
 @push('styles')

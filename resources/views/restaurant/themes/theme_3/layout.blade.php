@@ -4,11 +4,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', $restaurant->name)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : asset('favicon.ico') }}">
+    <title>@yield('title', $restaurant->name)</title>
+    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : asset('favicon.ico') }}">
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
     <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
     <script src="{{ asset('js/gsap.min.js') }}"></script>
+    <style>
+        .logo-image {
+            height: 3rem; /* 48px */
+            width: auto;
+            object-fit: contain;
+            max-width: 100%;
+        }
+        .loader-logo {
+            height: 6rem; /* 96px */
+            width: auto;
+            object-fit: contain;
+            max-width: 100%;
+            animation: zoomInOut 2s infinite ease-in-out;
+        }
+        @keyframes zoomInOut {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Unique Header & Footer Styles */
+        header {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .dark header {
+            background-color: rgba(30, 41, 59, 0.95); /* Slate-800 mostly opaque */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-brand-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; /* gap-3 */
+            text-decoration: none;
+        }
+
+        .restaurant-name-text {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+            letter-spacing: -0.025em; /* tracking-tight */
+            color: #111827; /* text-gray-900 */
+        }
+        .dark .restaurant-name-text {
+            color: #ffffff; /* text-white */
+        }
+        
+        .restaurant-initial {
+            color: var(--primary-color, #da3743);
+        }
+
+        footer {
+            background-color: #f3f4f6; /* Gray-100 */
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin-top: 4rem;
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+        .dark footer {
+            background-color: #020617; /* Slate-950 (darker than body) */
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Loader Styles */
+        #page-loader {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            display: flex;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background-color: #ffffff !important;
+            transition: opacity 0.5s ease;
+        }
+        .dark #page-loader {
+            background-color: #111827 !important; /* gray-900 */
+        }
+
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loader-text {
+            font-size: 1.5rem; /* 2xl */
+            font-weight: 700;
+            font-family: var(--font-serif);
+            color: #111827;
+        }
+        .dark .loader-text {
+            color: #ffffff;
+        }
+
+        .loader-dots {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .loader-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 9999px;
+            background-color: var(--primary-color, #da3743);
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+            50% { transform: translateY(0); animation-timing-function: cubic-bezier(0,0,0.2,1); }
+        }
+    </style>
     @stack('styles')
     <script>
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -22,8 +146,13 @@
     
     <header>
         <div class="container header-content">
-            <a href="{{ route('restaurant.index', $restaurant->slug) }}" class="brand-logo">
-                <span class="brand-highlight">{{ substr($restaurant->name, 0, 1) }}</span>{{ substr($restaurant->name, 1) }}
+            <a href="{{ route('restaurant.index', $restaurant->slug) }}" class="brand-logo header-brand-container">
+                @if($restaurant->hasMedia('logo'))
+                    <img src="{{ $restaurant->getFirstMediaUrl('logo') }}" alt="{{ $restaurant->name }}" class="logo-image">
+                @endif
+                <span class="restaurant-name-text">
+                    <span class="restaurant-initial">{{ substr($restaurant->name, 0, 1) }}</span>{{ substr($restaurant->name, 1) }}
+                </span>
             </a>
             <div class="header-actions">
                 <button class="icon-btn" id="theme-toggle">
@@ -34,8 +163,23 @@
         </div>
     </header>
 
+    <!-- Page Loader -->
+    <div id="page-loader">
+        <div class="loader-content">
+            @if($restaurant->hasMedia('logo'))
+                <img src="{{ $restaurant->getFirstMediaUrl('logo') }}" alt="{{ $restaurant->name }}" class="loader-logo">
+            @endif
+            <h1 class="loader-text">{{ $restaurant->name }}</h1>
+            <div class="loader-dots">
+                <div class="loader-dot" style="animation-delay: 0s"></div>
+                <div class="loader-dot" style="animation-delay: 0.1s"></div>
+                <div class="loader-dot" style="animation-delay: 0.2s"></div>
+            </div>
+        </div>
+    </div>
+
     <main id="main-content">
-        <div class="container" style="padding-top: 2rem;">
+        <div class="container">
             @yield('content')
         </div>
     </main>
@@ -99,25 +243,35 @@
         });
 
         window.addEventListener('load', () => {
-             // First fade in the main container
-             gsap.to('#main-content', { 
+             const tl = gsap.timeline();
+
+             // First handle loader
+             tl.to('#page-loader', {
+                 opacity: 0,
+                 duration: 0.5,
+                 delay: 0.5,
+                 onComplete: () => {
+                     document.getElementById('page-loader').style.display = 'none';
+                 }
+             })
+             // Then fade in main content
+             .to('#main-content', { 
                  opacity: 1, 
                  duration: 0.8, 
-                 ease: "power2.out",
-                 onComplete: () => {
-                     // Then animate the reveal elements
-                     gsap.fromTo(".gs-reveal", 
-                         { y: 20, opacity: 0 },
-                         { 
-                             y: 0, 
-                             opacity: 1, 
-                             duration: 0.6, 
-                             stagger: 0.1, 
-                             ease: "power2.out"
-                         }
-                     );
-                 }
-             });
+                 ease: "power2.out"
+             }, "-=0.2")
+             // Then reveal elements
+             .fromTo(".gs-reveal", 
+                 { y: 20, opacity: 0 },
+                 { 
+                     y: 0, 
+                     opacity: 1, 
+                     duration: 0.6, 
+                     stagger: 0.1, 
+                     ease: "power2.out"
+                 }, 
+                 "-=0.4"
+             );
         });
     </script>
     @stack('scripts')

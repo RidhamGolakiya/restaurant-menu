@@ -11,53 +11,16 @@
     <meta property="og:description" content="{{ $restaurant->overview ?? 'Authentic flavors, cozy ambience. View our menu and book a table.' }}">
     <meta property="og:image" content="{{ $restaurant->getMedia('hero-images')->first()?->getUrl() }}">
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS (CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Get theme configuration from restaurant if needed, or use default modern theme colors
-        const themeConfig = @json($restaurant->getThemeConfig());
-
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        amber: {
-                            50: '#fffbeb',
-                            100: '#fef3c7',
-                            200: '#fde68a',
-                            300: '#fcd34d',
-                            400: '#fbbf24',
-                            500: themeConfig.primary || '#f59e0b', // Use primary for main amber
-                            600: '#d97706',
-                            700: '#b45309',
-                            800: '#92400e',
-                            900: '#78350f',
-                        },
-                        stone: {
-                            850: '#1f1f1f',
-                            900: '#1c1917',
-                            950: '#0c0a09',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Lato', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : asset('favicon.ico') }}">
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Toastr & Select2 CSS (Matching home.blade.php) -->
     
     <!-- Toastr & Select2 CSS (Matching home.blade.php) -->
     <link rel="stylesheet" href="{{ asset('css/toastr.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}" />
     <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 
     <style>
         /* Custom Styles */
@@ -73,7 +36,6 @@
         [x-cloak] { display: none !important; }
     </style>
     <!-- Alpine.js -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 <body class="font-sans text-stone-800 antialiased bg-stone-50">
 
@@ -200,41 +162,55 @@
                 <div class="w-24 h-1 bg-amber-500 mx-auto"></div>
             </div>
 
-            <div x-data="{ tab: 'all' }" class="w-full">
-                <!-- Categories -->
-                <div class="flex flex-wrap justify-center gap-4 mb-10">
-                     <button @click="tab = 'all'" :class="tab === 'all' ? 'bg-amber-600 text-white' : 'bg-white text-stone-600 hover:bg-amber-50'" class="px-6 py-2 rounded-full font-medium transition-colors shadow-sm">All</button>
-                    @foreach($menuCategories as $category)
-                        @if($category->menuItems->count() > 0)
-                            <button @click="tab = '{{ $category->id }}'" :class="tab === '{{ $category->id }}' ? 'bg-amber-600 text-white' : 'bg-white text-stone-600 hover:bg-amber-50'" class="px-6 py-2 rounded-full font-medium transition-colors shadow-sm">{{ $category->name }}</button>
-                        @endif
-                    @endforeach
-                </div>
+            @foreach($baseCategories as $baseCategory)
+            <div class="mb-20">
+                <h3 class="text-3xl font-serif font-bold text-stone-800 mb-8 px-4 border-l-4 border-amber-600 inline-block">
+                    {{ $baseCategory->name }}
+                </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    @foreach($menuCategories as $category)
-                        @foreach($category->menuItems as $item)
-                        <!-- Card: {{ $item->name }} -->
-                        <div x-show="tab === 'all' || tab === '{{ $category->id }}'" x-transition 
-                             class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
-                            <div class="h-64 overflow-hidden relative">
-                                @php
-                                    $itemImage = $item->getMedia('menu_image')->first()?->getUrl() ?? '/img/starter.jpg'; // Placeholder if no image
-                                @endphp
-                                <img src="{{ $itemImage }}" alt="{{ $item->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                                <div class="absolute top-4 right-4 bg-amber-600 text-white px-3 py-1 rounded-full font-bold shadow-md transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                                    {{ $currency->icon ?? '$' }}{{ $item->price }}
-                                </div>
+                <!-- Category Grid -->
+                <!-- User requested screenshot style: horizontal scrolling or grid? Screenshot shows Grid. -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    @foreach($baseCategory->menuCategories as $category)
+                        <a href="{{ route('restaurant.category', ['slug' => $restaurant->slug, 'categorySlug' => $category->slug]) }}" 
+                           class="bg-stone-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative aspect-square flex flex-col items-center justify-end p-4">
+                            
+                            @php
+                                // Assuming category has image, if not use placeholder or specific logic provided?
+                                // User screenshot shows images for categories "Redbull Mocktails", "Shake", etc.
+                                // MenuCategory uses Spatie Media Library 'category_image' collection
+                                $categoryImage = $category->getMedia('category_image')->first()?->getUrl();
+                            @endphp
+
+                            <!-- Background Image with Overlay -->
+                            <div class="absolute inset-0 z-0">
+                                @if($categoryImage)
+                                    <img src="{{ $categoryImage }}" alt="{{ $category->name }}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
+                                @else
+                                    <div class="w-full h-full bg-stone-800 flex items-center justify-center opacity-80">
+                                        <!-- Placeholder Pattern or Icon -->
+                                         <svg class="w-12 h-12 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                    </div>
+                                @endif
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                             </div>
-                            <div class="p-6 relative">
-                                <h3 class="font-serif text-2xl font-bold text-stone-900 mb-2">{{ $item->name }}</h3>
-                                <p class="text-stone-600 text-sm mb-4 line-clamp-3">{{ $item->ingredients }}</p>
+
+                            <!-- Content -->
+                            <div class="relative z-10 text-center w-full">
+                                <h4 class="text-white font-bold text-lg md:text-xl leading-tight mb-2 group-hover:text-amber-400 transition-colors">{{ $category->name }}</h4>
                             </div>
-                        </div>
-                        @endforeach
+                        </a>
                     @endforeach
                 </div>
             </div>
+            @endforeach
+            
+            @if($baseCategories->isEmpty())
+                <div class="text-center py-20 bg-white rounded-2xl shadow-sm">
+                    <p class="text-gray-500 text-lg">Menu items coming soon.</p>
+                </div>
+            @endif
+
         </div>
     </section>
 
@@ -471,7 +447,6 @@
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/toastr.min.js') }}"></script>
     <script src="{{ asset('js/select2.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     
     <script>
         // Mobile Menu Toggle
@@ -578,5 +553,6 @@
              });
         });
     </script>
+
 </body>
 </html>
