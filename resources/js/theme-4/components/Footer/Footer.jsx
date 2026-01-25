@@ -49,7 +49,7 @@ const Footer = () => {
                             <span className="text-xl font-bold dark:text-cafe-text-dark">{restaurant.name}</span>
                         </div>
                         <p className="text-sm opacity-70 leading-relaxed">
-                            {restaurant.description || "Brewing moments of happiness. Our passion for food and artisanal treats brings people together."}
+                            {restaurant.overview || "Brewing moments of happiness. Our passion for food and artisanal treats brings people together."}
                         </p>
                     </div>
 

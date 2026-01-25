@@ -120,7 +120,7 @@ const Home = () => {
                         <span className="text-cafe-primary">Feel the Vibe.</span>
                     </h1>
                     <p className="hero-anim text-lg md:text-xl opacity-70 max-w-2xl mx-auto mb-10 leading-relaxed">
-                        {restaurant?.description || 'Experience the finest artisanal coffee and handcrafted food in the heart of the city.'}
+                        {restaurant?.overview || 'Experience the finest artisanal coffee and handcrafted food in the heart of the city.'}
                     </p>
                     <div className="hero-anim flex flex-col md:flex-row gap-4 justify-center">
                         <button
