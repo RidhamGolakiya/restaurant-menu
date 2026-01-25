@@ -142,6 +142,8 @@ class RestaurantDetails extends Page implements HasForms
                                             TextInput::make('social_links.instagram')->label('Instagram')->prefix('instagram.com/'),
                                             TextInput::make('social_links.facebook')->label('Facebook')->prefix('facebook.com/'),
                                             TextInput::make('social_links.twitter')->label('X (Twitter)')->prefix('x.com/'),
+                                            TextInput::make('zomato_link')->label('Zomato Link')->url()->placeholder('https://zomato.com/...'),
+                                            TextInput::make('swiggy_link')->label('Swiggy Link')->url()->placeholder('https://swiggy.com/...'),
                                         ])->columns(3),
                                     ])->collapsible(),
                             ]),
@@ -180,10 +182,10 @@ class RestaurantDetails extends Page implements HasForms
                                         ->label('Google Map Link')
                                         ->url()
                                         ->columnSpanFull(),
-                                    TextInput::make('google_data_id')
-                                        ->label('SerpApi Data ID')
-                                        ->helperText('Start with 0x... Required for reviews. Find it via SerpApi or our support.')
-                                        ->columnSpanFull(),
+                                    // TextInput::make('google_data_id')
+                                    //     ->label('SerpApi Data ID')
+                                    //     ->helperText('Start with 0x... Required for reviews. Find it via SerpApi or our support.')
+                                    //     ->columnSpanFull(),
                                 ])->columns(2),
                             ]),
 
@@ -210,7 +212,7 @@ class RestaurantDetails extends Page implements HasForms
                                     ->disk(config('app.media_disk'))
                                     ->collection(Restaurant::PHOTOS)
                                     ->multiple()
-                                    ->maxSize(2048)
+                                    ->maxSize(fn (Restaurant $record) => $record->gallery_max_size_mb * 1024)
                                     ->columnSpanFull(),
                             ])->columns(2),
 

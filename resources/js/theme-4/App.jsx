@@ -4,6 +4,7 @@ import { ThemeProvider } from './theme/ThemeProvider';
 import SplashScreen from './components/SplashScreen/SplashScreen';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
+import FloatingButtons from './components/FloatingButtons';
 import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
 import BestFoodPage from './pages/BestFoodPage';
@@ -35,6 +36,7 @@ function App() {
               </Routes>
             </main>
             <Footer />
+            <FloatingButtons />
           </div>
         </Router>
       </ThemeProvider>

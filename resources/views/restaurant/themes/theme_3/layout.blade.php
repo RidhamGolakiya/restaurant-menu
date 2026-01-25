@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', $restaurant->name)</title>
-    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : asset('favicon.ico') }}">
-    <title>@yield('title', $restaurant->name)</title>
-    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : asset('favicon.ico') }}">
+    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::disk('public')->url($settings['site_favicon']) : asset('favicon.ico') }}">
+
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -275,5 +274,17 @@
         });
     </script>
     @stack('scripts')
+    <div style="position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50; display: flex; flex-direction: column; gap: 0.75rem;">
+        @if($restaurant->zomato_link)
+        <a href="{{ $restaurant->zomato_link }}" target="_blank" rel="noopener noreferrer" style="background-color: white; padding: 0.375rem; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); display: flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem; transition: transform 0.2s; overflow: hidden;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Order on Zomato">
+            <img src="{{ asset('images/Zomato_Logo.svg') }}" alt="Zomato" style="width: 100%; height: 100%; object-fit: contain;">
+        </a>
+        @endif
+        @if($restaurant->swiggy_link)
+        <a href="{{ $restaurant->swiggy_link }}" target="_blank" rel="noopener noreferrer" style="background-color: white; padding: 0.375rem; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); display: flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem; transition: transform 0.2s; overflow: hidden;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Order on Swiggy">
+            <img src="{{ asset('images/Swiggy_logo.svg') }}" alt="Swiggy" style="width: 100%; height: 100%; object-fit: contain;">
+        </a>
+        @endif
+    </div>
 </body>
 </html>

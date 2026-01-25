@@ -48,6 +48,9 @@ class Restaurant extends Model implements HasMedia
         'show_on_landing_page',
         'type',
         'social_links',
+        'gallery_max_size_mb',
+        'zomato_link',
+        'swiggy_link',
     ];
 
     public function currency()

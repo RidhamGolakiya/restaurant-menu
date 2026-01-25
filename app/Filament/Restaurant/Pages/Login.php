@@ -77,4 +77,24 @@ class Login extends BaseLogin
             ->label(__('filament-panels::pages/auth/login.form.actions.authenticate.label'))
             ->submit('authenticate');
     }
+
+    public function authenticate(): ?\Filament\Http\Responses\Auth\Contracts\LoginResponse
+    {
+        try {
+            $response = parent::authenticate();
+            
+            $user = Filament::auth()->user();
+
+            if ($user && $user->restaurant && !$user->restaurant->is_active) {
+                Filament::auth()->logout();
+                $this->throwFailureValidationException();
+            }
+
+            return $response;
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Customize error message if needed, or let it fall through
+            $this->addError('data.email', 'Your restaurant is currently offline. Please contact administrator.');
+            return null;
+        }
+    }
 }

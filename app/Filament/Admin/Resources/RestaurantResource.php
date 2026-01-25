@@ -119,6 +119,13 @@ class RestaurantResource extends Resource
                                         ->default(false)
                                         ->onColor('success')
                                         ->offColor('gray'),
+                                    TextInput::make('gallery_max_size_mb')
+                                        ->label('Max Gallery Image Size (MB)')
+                                        ->numeric()
+                                        ->default(2)
+                                        ->minValue(1)
+                                        ->maxValue(50)
+                                        ->required(),
                                 ]),
 
                                 Forms\Components\Section::make('Social Media')

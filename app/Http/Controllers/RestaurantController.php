@@ -21,6 +21,16 @@ class RestaurantController extends Controller
     {
         $restaurant = Restaurant::where('slug', $slug)->firstOrFail();
 
+        if (!$restaurant->is_active) {
+            $settings = getGlobalSettings();
+            
+            if (isset($settings['support_whatsapp']) && is_string($settings['support_whatsapp'])) {
+                $settings['support_whatsapp'] = json_decode($settings['support_whatsapp'], true);
+            }
+            
+            return view('restaurant.offline', compact('settings'));
+        }
+
         $date = request()->query('date') ?? now($restaurant->timezone)->toDateString();
         $dayName = Carbon::parse($date, $restaurant->timezone)->format('l');
 
@@ -125,6 +135,9 @@ class RestaurantController extends Controller
                     'created_at' => $restaurant->created_at->format('Y'), // Added creation year
                     'established_text' => $restaurant->theme_config['established_text'] ?? null,
                     'currency' => $currency->symbol ?? '$', // Handle currency symbol
+                    'zomato_link' => $restaurant->zomato_link,
+                    'swiggy_link' => $restaurant->swiggy_link,
+                    'photos' => $restaurant->getMedia('photos')->map(fn($media) => $media->getUrl())->toArray(),
                 ],
                 'opening_hours' => $restaurantHours->map(function ($slot) {
                     return [

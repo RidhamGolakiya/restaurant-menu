@@ -97,6 +97,7 @@ class RestaurantPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 RoleMiddleware::class . ':restaurant',
+                \App\Http\Middleware\CheckRestaurantActive::class,
             ]);
     }
 }

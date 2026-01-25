@@ -32,7 +32,16 @@ class SiteSettings extends Page implements HasForms
 
     public function mount(): void
     {
-        $this->form->fill(getGlobalSettings());
+        $settings = getGlobalSettings();
+        
+        // Decode JSON values for repeater
+        foreach ($settings as $key => $value) {
+            if (is_string($value) && is_array(json_decode($value, true))) {
+                $settings[$key] = json_decode($value, true);
+            }
+        }
+
+        $this->form->fill($settings);
     }
 
     public function form(Form $form): Form
@@ -47,11 +56,13 @@ class SiteSettings extends Page implements HasForms
                         FileUpload::make('site_icon')
                             ->label('Site Icon')
                             ->image()
+                            ->disk('public')
                             ->directory('site-assets')
                             ->visibility('public'),
                         FileUpload::make('site_favicon')
                             ->label('Favicon')
                             ->image()
+                            ->disk('public')
                             ->directory('site-assets')
                             ->visibility('public'),
                     ])->columns(2),
@@ -65,6 +76,24 @@ class SiteSettings extends Page implements HasForms
                             ->label('SEO Description')
                             ->rows(3),
                     ]),
+                
+                Section::make('Contact Support')
+                    ->description('Contact details displayed on the "Restaurant Offline" page.')
+                    ->schema([
+                        TextInput::make('support_email')
+                            ->label('Support Email')
+                            ->email(),
+                        TextInput::make('support_phone')
+                            ->label('Support Phone'),
+                        \Filament\Forms\Components\Repeater::make('support_whatsapp')
+                            ->label('WhatsApp Numbers')
+                            ->schema([
+                                TextInput::make('number')
+                                    ->label('WhatsApp Number')
+                                    ->tel(),
+                            ])
+                            ->columnSpanFull(),
+                    ]),
             ])
             ->statePath('data');
     }
@@ -74,6 +103,10 @@ class SiteSettings extends Page implements HasForms
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $value = json_encode($value);
+            }
+            
             Setting::updateOrCreate(
                 ['key' => $key, 'user_id' => null],
                 ['value' => $value]

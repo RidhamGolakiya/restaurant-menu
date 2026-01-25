@@ -3,6 +3,7 @@ import ReviewsSection from '../components/ReviewsSection';
 import CategoryCard from '../components/CategoryCard/CategoryCard';
 import FoodCard from '../components/FoodCard/FoodCard';
 import FoodModal from '../components/FoodModal/FoodModal';
+import GalleryModal from '../components/GalleryModal/GalleryModal';
 import { ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
@@ -18,6 +19,7 @@ const Home = () => {
 
     // Fallback if data is not yet loaded
     const [selectedFood, setSelectedFood] = useState(null);
+    const [galleryIndex, setGalleryIndex] = useState(null);
     const [currentSpecialIndex, setCurrentSpecialIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -277,7 +279,43 @@ const Home = () => {
                 </section>
             )} */}
 
+            {/* Gallery Section */}
+            {restaurant?.photos && restaurant.photos.length > 0 && (
+                <section className="bg-white dark:bg-black/20 py-24">
+                    <div className="container mx-auto px-6">
+                        <div className="text-center mb-16">
+                            <h2 className="text-4xl font-bold mb-4 dark:text-cafe-text-dark tracking-tight">Gallery</h2>
+                            <p className="opacity-60">A glimpse into our ambiance and culinary delights.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {restaurant.photos.map((photo, index) => (
+                                <div
+                                    key={index}
+                                    className="aspect-square rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform duration-300 shadow-lg cursor-pointer"
+                                    onClick={() => setGalleryIndex(index)}
+                                >
+                                    <img
+                                        src={photo}
+                                        alt={`Gallery ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
             <FoodModal food={selectedFood} onClose={() => setSelectedFood(null)} />
+
+            {galleryIndex !== null && (
+                <GalleryModal
+                    images={restaurant.photos}
+                    initialIndex={galleryIndex}
+                    onClose={() => setGalleryIndex(null)}
+                />
+            )}
         </div>
     );
 };

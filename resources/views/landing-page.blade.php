@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $settings['seo_title'] ?? config('app.name', 'Restaurant SaaS') }}</title>
     <meta name="description" content="{{ $settings['seo_description'] ?? 'The all-in-one platform to manage menus, reservations, and orders.' }}">
-    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : asset('favicon.ico') }}">
+    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::disk('public')->url($settings['site_favicon']) : asset('favicon.ico') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -39,6 +39,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex-shrink-0 flex items-center gap-2">
+                    @if(isset($settings['site_icon']) && $settings['site_icon'])
+                        <img src="{{ Storage::disk('public')->url($settings['site_icon']) }}" alt="Logo" class="h-8 w-auto">
+                    @endif
                     <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600">
                         {{ $settings['site_name'] ?? config('app.name', 'Restaurant SaaS') }}
                     </span>
@@ -82,7 +85,7 @@
                     See How It Works
                 </a>
             </div>
-            <p class="mt-4 text-sm text-gray-500">No credit card required · Free 14-day trial</p>
+            <!-- <p class="mt-4 text-sm text-gray-500">No credit card required · Free 14-day trial</p> -->
         </div>
     </section>
 

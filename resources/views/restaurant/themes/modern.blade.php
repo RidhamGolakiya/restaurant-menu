@@ -11,7 +11,7 @@
     <meta property="og:description" content="{{ $restaurant->overview ?? 'Authentic flavors, cozy ambience. View our menu and book a table.' }}">
     <meta property="og:image" content="{{ $restaurant->getMedia('hero-images')->first()?->getUrl() }}">
     
-    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : asset('favicon.ico') }}">
+    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::disk('public')->url($settings['site_favicon']) : asset('favicon.ico') }}">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -34,6 +34,72 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         [x-cloak] { display: none !important; }
+
+        /* Gallery Modal Styles */
+        #gallery-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.9);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #gallery-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        .gallery-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.3s;
+            z-index: 10000;
+        }
+        .gallery-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .gallery-prev { left: 1rem; }
+        .gallery-next { right: 1rem; }
+        .gallery-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 10000;
+        }
+        .gallery-image-container {
+            position: relative;
+            max-width: 90vw;
+            max-height: 85vh;
+        }
+        .gallery-modal-image {
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .gallery-counter {
+            position: absolute;
+            bottom: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.875rem;
+        }
     </style>
     <!-- Alpine.js -->
 </head>
@@ -231,7 +297,7 @@
                         if ($index == 0) $classes .= ' sm:col-span-2 md:col-span-2 md:row-span-2';
                         elseif ($index == 3) $classes .= ' sm:col-span-2 md:col-span-2';
                     @endphp
-                    <div class="{{ $classes }}">
+                    <div class="{{ $classes }} cursor-pointer" onclick="openGallery({{ $index }})">
                         <img src="{{ $photo->getUrl() }}" alt="Gallery {{ $index + 1 }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                     </div>
                 @endforeach
@@ -554,5 +620,91 @@
         });
     </script>
 
+    <div style="position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50; display: flex; flex-direction: column; gap: 0.75rem;">
+        @if($restaurant->zomato_link)
+        <a href="{{ $restaurant->zomato_link }}" target="_blank" rel="noopener noreferrer" style="background-color: white; padding: 0.375rem; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); display: flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem; transition: transform 0.2s; overflow: hidden;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Order on Zomato">
+            <img src="{{ asset('images/zomato.png') }}" alt="Zomato" style="width: 100%; height: 100%; object-fit: contain;">
+        </a>
+        @endif
+        @if($restaurant->swiggy_link)
+        <a href="{{ $restaurant->swiggy_link }}" target="_blank" rel="noopener noreferrer" style="background-color: white; padding: 0.375rem; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); display: flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem; transition: transform 0.2s; overflow: hidden;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Order on Swiggy">
+            <img src="{{ asset('images/swiggy.png') }}" alt="Swiggy" style="width: 100%; height: 100%; object-fit: contain;">
+        </a>
+        @endif
+    </div>
+    
+    <!-- Gallery Modal Structure & Script -->
+    <div id="gallery-modal" onclick="closeGallery()">
+        <button class="gallery-close" onclick="closeGallery()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"></path>
+            </svg>
+        </button>
+        
+        <button class="gallery-nav-btn gallery-prev" onclick="prevGalleryImage(event)">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+        
+        <div class="gallery-image-container" onclick="event.stopPropagation()">
+            <img id="gallery-image" src="" alt="Gallery Image" class="gallery-modal-image">
+            <div id="gallery-counter" class="gallery-counter"></div>
+        </div>
+        
+        <button class="gallery-nav-btn gallery-next" onclick="nextGalleryImage(event)">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        const galleryImages = [
+            @foreach($restaurant->getMedia('photos') as $photo)
+                "{{ $photo->getUrl() }}",
+            @endforeach
+        ];
+        let currentGalleryIndex = 0;
+        const galleryModal = document.getElementById('gallery-modal');
+        const galleryImage = document.getElementById('gallery-image');
+        const galleryCounter = document.getElementById('gallery-counter');
+
+        function openGallery(index) {
+            currentGalleryIndex = index;
+            updateGalleryImage();
+            galleryModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGallery() {
+            galleryModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function nextGalleryImage(e) {
+            if(e) e.stopPropagation();
+            currentGalleryIndex = (currentGalleryIndex + 1) % galleryImages.length;
+            updateGalleryImage();
+        }
+
+        function prevGalleryImage(e) {
+            if(e) e.stopPropagation();
+            currentGalleryIndex = (currentGalleryIndex - 1 + galleryImages.length) % galleryImages.length;
+            updateGalleryImage();
+        }
+
+        function updateGalleryImage() {
+            galleryImage.src = galleryImages[currentGalleryIndex];
+            galleryCounter.innerText = (currentGalleryIndex + 1) + ' / ' + galleryImages.length;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (!galleryModal.classList.contains('active')) return;
+            if (e.key === 'Escape') closeGallery();
+            if (e.key === 'ArrowRight') nextGalleryImage();
+            if (e.key === 'ArrowLeft') prevGalleryImage();
+        });
+    </script>
 </body>
 </html>
