@@ -76,11 +76,13 @@ class Restaurant extends Model implements HasMedia
     const HERO_IMAGE = 'hero-images';
     const PHOTOS = 'photos';
     const LOGO = 'logo';
+    const FAVICON = 'favicon';
 
     public static $rules = [
         'photos' => 'max:2048',
         'logo' => 'max:2048',
         'hero_images' => 'max:2048',
+        'favicon' => 'max:512',
     ];
 
     public function menuCategories()

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', $restaurant->name)</title>
-    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::disk('public')->url($settings['site_favicon']) : asset('favicon.ico') }}">
+    <link rel="icon" href="{{ $restaurant->hasMedia('favicon') ? $restaurant->getFirstMediaUrl('favicon') : (isset($settings['site_favicon']) ? Storage::disk('public')->url($settings['site_favicon']) : asset('favicon.ico')) }}">
 
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])

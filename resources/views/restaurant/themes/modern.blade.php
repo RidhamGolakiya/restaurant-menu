@@ -11,7 +11,7 @@
     <meta property="og:description" content="{{ $restaurant->overview ?? 'Authentic flavors, cozy ambience. View our menu and book a table.' }}">
     <meta property="og:image" content="{{ $restaurant->getMedia('hero-images')->first()?->getUrl() }}">
     
-    <link rel="icon" href="{{ isset($settings['site_favicon']) ? Storage::disk('public')->url($settings['site_favicon']) : asset('favicon.ico') }}">
+    <link rel="icon" href="{{ $restaurant->hasMedia('favicon') ? $restaurant->getFirstMediaUrl('favicon') : (isset($settings['site_favicon']) ? Storage::disk('public')->url($settings['site_favicon']) : asset('favicon.ico')) }}">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
