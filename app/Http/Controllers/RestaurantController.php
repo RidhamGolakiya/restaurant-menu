@@ -131,7 +131,7 @@ class RestaurantController extends Controller
                     'city' => $restaurant->city,
                     'zip_code' => $restaurant->zip_code,
                     'social_links' => $restaurant->social_links,
-                    'description' => $restaurant->description, // Added description
+                    'overview' => $restaurant->overview,
                     'created_at' => $restaurant->created_at->format('Y'), // Added creation year
                     'established_text' => $restaurant->theme_config['established_text'] ?? null,
                     'currency' => $currency->symbol ?? '$', // Handle currency symbol
