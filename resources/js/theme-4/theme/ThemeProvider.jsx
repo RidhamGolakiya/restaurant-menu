@@ -10,7 +10,7 @@ export const ThemeProvider = ({ children }) => {
 
     useEffect(() => {
         const root = window.document.documentElement;
-        if (isDarkMode) {
+        if (true) {
             root.classList.add('dark');
             localStorage.setItem('theme', 'dark');
         } else {
@@ -23,7 +23,7 @@ export const ThemeProvider = ({ children }) => {
 
     return (
         <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-            <div className={`${isDarkMode ? 'dark' : ''} min-h-screen transition-colors duration-500`}>
+            <div className={`${isDarkMode ? 'dark' : ''} dark  min-h-screen transition-colors duration-500`}>
                 {children}
             </div>
         </ThemeContext.Provider>
