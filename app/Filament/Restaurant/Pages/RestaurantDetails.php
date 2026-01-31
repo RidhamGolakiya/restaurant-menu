@@ -195,14 +195,12 @@ class RestaurantDetails extends Page implements HasForms
                                 SpatieMediaLibraryFileUpload::make('logo')
                                     ->label('Logo')
                                     ->image()
-                                    ->avatar()
                                     ->disk(config('app.media_disk'))
                                     ->collection(Restaurant::LOGO)
                                     ->maxSize(2048),
                                 SpatieMediaLibraryFileUpload::make('favicon')
                                     ->label('Favicon')
                                     ->image()
-                                    ->avatar()
                                     ->disk(config('app.media_disk'))
                                     ->collection(Restaurant::FAVICON)
                                     ->maxSize(512),

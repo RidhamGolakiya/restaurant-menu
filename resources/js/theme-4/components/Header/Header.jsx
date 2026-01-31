@@ -33,7 +33,7 @@ const Header = () => {
                 <img
                     src={restaurant.logo}
                     alt={restaurant.name}
-                    className="h-10 w-auto object-contain"
+                    className="h-24 w-auto object-contain"
                     onError={(e) => {
                         e.target.style.display = 'none';
                         // Force using the text fallback by hiding image and showing sibling if structure allowed, 
