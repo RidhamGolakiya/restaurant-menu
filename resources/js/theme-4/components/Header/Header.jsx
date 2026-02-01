@@ -66,11 +66,14 @@ const Header = () => {
         >
             <div className="container mx-auto px-6 flex items-center justify-center relative">
                 {/* Left Side: Navigation Items */}
-                <div className="flex-1 hidden md:flex items-center gap-8 font-bold text-xs uppercase tracking-widest">
-                    <Link to="/" className="hover:text-cafe-primary transition-colors">Home</Link>
-                    <Link to="/best-sellers" className="hover:text-cafe-primary transition-colors">Best Sellers</Link>
-                    {/* <Link to="/specials" className="hover:text-cafe-primary transition-colors">Chef's Special</Link> */}
-                    {/* <Link to="/offers" className="px-4 py-2 bg-cafe-primary/10 text-cafe-primary rounded-full hover:bg-cafe-primary hover:text-white transition-all">Offers</Link> */}
+                {/* Left Side: Navigation Items */}
+                <div className="flex-1 flex items-center">
+                    <div className="hidden md:flex items-center gap-8 font-bold text-xs uppercase tracking-widest">
+                        <Link to="/" className="hover:text-cafe-primary transition-colors">Home</Link>
+                        <Link to="/best-sellers" className="hover:text-cafe-primary transition-colors">Best Sellers</Link>
+                        {/* <Link to="/specials" className="hover:text-cafe-primary transition-colors">Chef's Special</Link> */}
+                        {/* <Link to="/offers" className="px-4 py-2 bg-cafe-primary/10 text-cafe-primary rounded-full hover:bg-cafe-primary hover:text-white transition-all">Offers</Link> */}
+                    </div>
                 </div>
 
                 {/* Logo Middle */}

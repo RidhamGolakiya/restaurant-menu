@@ -134,7 +134,7 @@ class RestaurantController extends Controller
                     'overview' => $restaurant->overview,
                     'created_at' => $restaurant->created_at->format('Y'), // Added creation year
                     'established_text' => $restaurant->theme_config['established_text'] ?? null,
-                    'currency' => $currency->symbol ?? '$', // Handle currency symbol
+                    'currency' => $currency->icon ?? '$', // Handle currency symbol
                     'zomato_link' => $restaurant->zomato_link,
                     'swiggy_link' => $restaurant->swiggy_link,
                     'photos' => $restaurant->getMedia('photos')->map(fn($media) => $media->getUrl())->toArray(),

@@ -1,11 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { X, Star, Leaf } from 'lucide-react';
 import gsap from 'gsap';
+import { useRestaurantData } from '../../hooks/useRestaurantData';
 
 const FoodModal = ({ food, onClose }) => {
     const modalRef = useRef(null);
     const overlayRef = useRef(null);
     const contentRef = useRef(null);
+    const { restaurant } = useRestaurantData();
+    const currency = restaurant?.currency || '$';
 
     useEffect(() => {
         if (food) {
@@ -78,7 +81,7 @@ const FoodModal = ({ food, onClose }) => {
                     <h2 className="text-3xl md:text-4xl font-bold mb-4 dark:text-cafe-text-dark">{food.name}</h2>
 
                     <div className="flex items-center gap-4 mb-6">
-                        <span className="text-3xl font-bold text-cafe-primary">${food.price.toFixed(2)}</span>
+                        <span className="text-3xl font-bold text-cafe-primary">{currency}{food.price.toFixed(2)}</span>
                         <div className="flex items-center gap-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
                             <Star size={16} className="fill-cafe-primary text-cafe-primary" />
                             <span className="font-bold">{food.rating}</span>
